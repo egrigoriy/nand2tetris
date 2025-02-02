@@ -15,25 +15,31 @@
 // if n > 0 goto LOOP
 // END
 
-@R2
-M=0
-@R0
-D=M
-@END
-D, JEQ
-@R0
-D=M
-@n
-M=D
+	// set R2 = 0
+	@R2
+	M=0
+	@R0
+	D=M
+	// if R0==0 goto END
+	@END
+	D, JEQ
+	//  else n=R0
+	@R0
+	D=M
+	@n
+	M=D
 (LOOP)
-@R1
-D=M
-@R2
-M=D+M
-@n
-MD=M-1
-@LOOP
-D, JGT
+	// R2 = R2 + R1
+	@R1
+	D=M
+	@R2
+	M=D+M
+	// n = n - 1
+	@n
+	MD=M-1
+	// if n > 0 goto LOOP
+	@LOOP
+	D, JGT
 (END)
-@END
-0; JMP
+	@END
+	0; JMP
