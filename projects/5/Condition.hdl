@@ -1,0 +1,33 @@
+// This file is created by Grigoriy Emiliyanov
+// File name: projects/5/Condition.hdl
+/**
+ * This chip determines if given conditions match given number information.
+ * The conditions are:
+ *	islt - is lower than 0
+ * 	iseq - is equal to 0
+ *	isgt - is greater than 0
+ * The number information is encoded as following:
+ * 	zr - the number is 0
+ * 	ng - the number is negative
+ * The chip outputs 1 only if the conditions match the given number information.
+ */
+CHIP Condition {
+
+    IN islt,
+	iseq,
+	isgt,
+	zr,
+	ng;
+	
+	OUT out;
+
+    PARTS:
+	And(a=islt, b=ng, out=lt);
+	And(a=iseq, b=zr, out=eq);
+	Not(in=ng, out=notng);
+	Not(in=zr, out=notzr);
+	And(a=notng, b=notzr, out=gthan);
+	And(a=isgt, b=gthan, out=gt);
+	Or(a=lt, b=eq, out=ltoreq);
+	Or(a=ltoreq, b=gt, out=out);
+}

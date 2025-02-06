@@ -32,5 +32,28 @@ CHIP CPU {
         pc[15];          // address of next instruction
 
     PARTS:
-	//// Replace this comment with your code.
+	// "Make" signals for A-instruction and C-instruction
+	Not(in=instruction[15], out=ainstruction);
+	Not(in=ainstruction, out=cinstruction);
+	// Mux16 to select ARegister input between instruction and ALU output feedback
+	Mux16(a=instruction, b=aluout, sel=cinstruction, out=aregin);
+	// Load to ARegister if A-instruction or C-instruction with destination ARegister
+	Or(a=ainstruction,b=instruction[5], out=loadtoareg);
+	ARegister(in=aregin, load=loadtoareg, out=aregout, out[0..14]=addressM);
+	// Load to DRegister if C-instruction with destination DRegister
+	And(a=cinstruction, b=instruction[4], out=loadtodreg);	
+	DRegister(in=aluout, load=loadtodreg, out=dregout);
+	// Mux16 to select ALU input between ARegister and Memory
+	Mux16(a=aregout, b=inM, sel=instruction[12], out=aregorinm);
+	// Wire ALU
+	ALU(x=dregout, y=aregorinm, zx=instruction[11], nx=instruction[10], zy=instruction[9], ny=instruction[8], f=instruction[7], no=instruction[6], out=aluout, zr=zr, ng=ng, out=outM);
+	// Write to RAM memory if C-instruction with destination RAM
+	And(a=cinstruction, b=instruction[3], out=writeM);
+	// Manage jump condition
+	Condition(islt=instruction[2], iseq=instruction[1], isgt=instruction[0], zr=zr, ng=ng, out=isconditiontrue);
+	// Jump is applied only for C-instruction
+	And(a=isconditiontrue, b=cinstruction, out=jump);
+	// If no jump then increment
+	Not(in=jump, out=inc);
+	PC(in=aregout, load=jump, inc=inc ,reset=reset, out[0..14]=pc);
 }
