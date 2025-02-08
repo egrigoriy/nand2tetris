@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class ASMPreprocessorTest {
     @Test
@@ -95,6 +96,74 @@ public class ASMPreprocessorTest {
         expected.add("@i");
         expected.add("M=1");
         List<String> result = preprocessor.removeComments(program);
+        assertEquals(expected, result);
+    }
+
+    @Test
+    public void testHandleLabel() {
+        SymbolTable st = new SymbolTable();
+        List<String> program = new ArrayList<>();
+        // line 0
+        program.add("@sum");
+        // line 1
+        program.add("M=0");
+        program.add("(LOOP)");
+        // line 2
+        program.add("@i");
+        // line 3
+        program.add("D=M");
+        // line 4
+        program.add("@R0");
+        // line 5
+        program.add("D=D-M");
+        // line 6
+        program.add("@END");
+        // line 7
+        program.add("D;JGT");
+        // line 8
+        program.add("@LOOP");
+        // line 9
+        program.add("D=D+M;JMP");
+        program.add("(END)");
+        // line 10
+        program.add("@END");
+        // line 11
+        program.add("0;JMP");
+
+        ASMPreprocessor preprocessor = new ASMPreprocessor();
+        List<String> result = preprocessor.handleLabels(program, st);
+        assertTrue(st.contains("LOOP"));
+        assertEquals(2, st.getAddress("LOOP"));
+
+        assertTrue(st.contains("END"));
+        assertEquals(10, st.getAddress("END"));
+
+        List<String> expected = new ArrayList<>();
+        // line 0
+        expected.add("@sum");
+        // line 1
+        expected.add("M=0");
+        // line 2
+        expected.add("@i");
+        // line 3
+        expected.add("D=M");
+        // line 4
+        expected.add("@R0");
+        // line 5
+        expected.add("D=D-M");
+        // line 6
+        expected.add("@END");
+        // line 7
+        expected.add("D;JGT");
+        // line 8
+        expected.add("@LOOP");
+        // line 9
+        expected.add("D=D+M;JMP");
+        // line 10
+        expected.add("@END");
+        // line 11
+        expected.add("0;JMP");
+
         assertEquals(expected, result);
     }
 }

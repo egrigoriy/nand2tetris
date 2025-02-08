@@ -1,5 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class ASMPreprocessor {
@@ -33,8 +35,21 @@ public class ASMPreprocessor {
         return result;
     }
 
-    public List<String> handleLabels() {
-        return null;
+    public List<String> handleLabels(List<String> input, SymbolTable st) {
+        Pattern pattern = Pattern.compile("\\(([^()]*)\\)");
+        int pc = 0;
+        List<String> result = new ArrayList<>();
+        for (String instruction : input) {
+            Matcher matcher = pattern.matcher(instruction);
+            if (matcher.find()) {
+                String symbol =  matcher.group(1);
+                st.addEntry(symbol, pc);
+            } else {
+                result.add(instruction);
+                pc++;
+            }
+        }
+        return result;
     }
 
     public List<String> handleVariables() {
