@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
@@ -30,7 +31,8 @@ public class HackAssembler {
     }
     private static List<String> readFile(String filePath) {
         try {
-            return Files.readAllLines(Paths.get(filePath));
+            Path file = Paths.get(filePath);
+            return Files.readAllLines(file);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

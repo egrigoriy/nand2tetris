@@ -46,10 +46,10 @@ public class CInstruction implements Instruction {
             case "-D" -> "0001111";
             case "-A" -> "0110011";
             case "-M" -> "1110011";
-            case "0+1" -> "0011111";
+            case "D+1" -> "0011111";
             case "A+1" -> "0110111";
             case "M+1" -> "1110111";
-            case "0-1" -> "0001110";
+            case "D-1" -> "0001110";
             case "A-1" -> "0110010";
             case "M-1" -> "1110010";
             case "D+A" -> "0000010";
