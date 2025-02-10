@@ -1,3 +1,5 @@
+import java.util.Objects;
+
 public class CInstruction implements Instruction {
 
     private final String dst;
@@ -77,5 +79,18 @@ public class CInstruction implements Instruction {
             case "ADM" -> "111";
             default -> "000";
         };
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CInstruction that = (CInstruction) o;
+        return Objects.equals(dst, that.dst) && Objects.equals(comp, that.comp) && Objects.equals(jmp, that.jmp);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(dst, comp, jmp);
     }
 }
