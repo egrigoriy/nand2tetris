@@ -4,17 +4,23 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+/**
+ * Represents Hack assembler main program where the main operations are reading and writing of the files.
+ */
 public class HackAssembler {
     public static void main(String[] args) {
         validateArgs(args);
         String inputFileName = args[0];
-        List<String> lines = readFile(inputFileName);
-        String binary = translateToBinary(lines);
+        List<String> asmLines = readFile(inputFileName);
+        List<String> binaryLines = translateToBinary(asmLines);
         String outputFileName = buildOutputName(inputFileName);
-        saveFile(outputFileName, binary);
+        saveFile(outputFileName, binaryLines);
     }
 
-
+    /**
+     * Validates the provided arguments
+     * @param args
+     */
     private static void validateArgs(String[] args) {
         if (args.length != 1) {
             System.out.println("Wrong number of arguments: Required 1, but provided " + args.length);
@@ -29,6 +35,12 @@ public class HackAssembler {
             System.exit(0);
         }
     }
+
+    /**
+     * Returns the content of a given file as list of strings, where each string is a line
+     * @param filePath
+     * @return file content as list of strings
+     */
     private static List<String> readFile(String filePath) {
         try {
             Path file = Paths.get(filePath);
@@ -38,25 +50,37 @@ public class HackAssembler {
         }
     }
 
-    private static String translateToBinary(List<String> lines) {
+    /**
+     * Translate provided lines from Hack machine language to binary format
+     * @param lines
+     * @return program translated to binary format
+     */
+    private static List<String> translateToBinary(List<String> lines) {
         ASMProgram asmProgram = new ASMProgram(lines);
         return asmProgram.toBinary();
     }
 
+    /**
+     * Returns the file name with extension ".hack"
+     * @param inputFileName
+     * @return the file name with extension .hack
+     */
     private static String buildOutputName(String inputFileName) {
         String inputFileNameWithoutExtension = inputFileName.substring(0, inputFileName.indexOf("."));
         return inputFileNameWithoutExtension + ".hack";
     }
 
-    private static void saveFile(String fileName, String content) {
+    /**
+     * Saves the provided list of lines to a file with given name
+     * @param fileName
+     * @param lines
+     */
+    private static void saveFile(String fileName, List<String> lines) {
         try {
+            String content = String.join("\n", lines);
             Files.writeString(Paths.get(fileName), content);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
-
-
-    
-    
 }
