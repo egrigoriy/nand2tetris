@@ -1,6 +1,6 @@
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class AInstructionTest {
     @Test
@@ -20,5 +20,11 @@ public class AInstructionTest {
         AInstruction aInstruction1 = new AInstruction(address);
         AInstruction aInstruction2 = new AInstruction(address);
         assertEquals(aInstruction1, aInstruction2);
+    }
+
+    @Test
+    public void testIsSuchInstruction() {
+        assertTrue(AInstruction.isSuch("@1234"));
+        assertFalse(AInstruction.isSuch("M=D+M;JMP"));
     }
 }

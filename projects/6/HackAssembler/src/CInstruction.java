@@ -1,7 +1,11 @@
 import java.util.Objects;
 
-public class CInstruction implements Instruction {
+/**
+ * Represents an Assembler Hack instruction
+ */
 
+public class CInstruction implements Instruction {
+    public static final String BINARY_PREFIX = "111";
     private final String dst;
     private final String comp;
     private final String jmp;
@@ -11,27 +15,49 @@ public class CInstruction implements Instruction {
         this.comp = comp;
         this.jmp = jmp;
     }
-    @Override
-    public String toBinary() {
-        return "111" +  compToBinary() + dstToBinary() + jmpToBinary();
+
+    /**
+     * Returns true if the given string is an C-Instruction, otherwise false
+     * @param instruction
+     * @return true if the given string is an C-Instruction, otherwise false
+     */
+    public static boolean isSuch(String instruction) {
+        return !AInstruction.isSuch(instruction);
     }
 
-    private String jmpToBinary() {
-        if (jmp == null) {
+    /**
+     * Returns the binary format of this C-Instruction
+     * @return the binary format of this C-Instruction
+     */
+    @Override
+    public String toBinary() {
+        return BINARY_PREFIX +  compToBinary() + dstToBinary() + jmpToBinary();
+    }
+
+    /**
+     * Returns the binary format of dst
+     * @return the binary format of dst
+     */
+    private String dstToBinary() {
+        if (dst == null) {
             return "000";
         }
-        return switch (jmp) {
-            case "JGT" -> "001";
-            case "JEQ" -> "010";
-            case "JGE" -> "011";
-            case "JLT" -> "100";
-            case "JNE" -> "101";
-            case "JLE" -> "110";
-            case "JMP" -> "111";
-            default -> "000";
+        return switch (dst) {
+            case "M" -> "001";
+            case "D" -> "010";
+            case "DM", "MD" -> "011";
+            case "A" -> "100";
+            case "AM" -> "101";
+            case "AD" -> "110";
+            case "ADM" -> "111";
+            default -> throw new IllegalStateException("Unexpected value of dst: " + dst);
         };
     }
 
+    /**
+     * Returns the binary format of comp
+     * @return the binary format of comp
+     */
     private String compToBinary() {
         return switch (comp) {
             case "0" -> "0101010";
@@ -62,25 +88,29 @@ public class CInstruction implements Instruction {
             case "D&M" -> "1000000";
             case "D|A" -> "0010101";
             case "D|M" -> "1010101";
-            default -> throw new IllegalStateException("Unexpected value: " + comp);
-        };
-    }
-    private String dstToBinary() {
-        if (dst == null) {
-            return "000";
-        }
-        return switch (dst) {
-            case "M" -> "001";
-            case "D" -> "010";
-            case "DM", "MD" -> "011";
-            case "A" -> "100";
-            case "AM" -> "101";
-            case "AD" -> "110";
-            case "ADM" -> "111";
-            default -> "000";
+            default -> throw new IllegalStateException("Unexpected value of comp: " + comp);
         };
     }
 
+    /**
+     * Returns the binary format of jmp
+     * @return the binary format of jmp
+     */
+    private String jmpToBinary() {
+        if (jmp == null) {
+            return "000";
+        }
+        return switch (jmp) {
+            case "JGT" -> "001";
+            case "JEQ" -> "010";
+            case "JGE" -> "011";
+            case "JLT" -> "100";
+            case "JNE" -> "101";
+            case "JLE" -> "110";
+            case "JMP" -> "111";
+            default -> throw new IllegalStateException("Unexpected value of jump: " + jmp);
+        };
+    }
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
