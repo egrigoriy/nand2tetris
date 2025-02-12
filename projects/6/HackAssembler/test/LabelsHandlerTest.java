@@ -4,28 +4,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
-public class ASMPreprocessorTest {
+public class LabelsHandlerTest {
     @Test
-    public void testProcess() {
+    public void testHandleLabel() {
         List<String> program = new ArrayList<>();
         // line 0
         program.add("@sum");
         // line 1
         program.add("M=0");
         program.add("(LOOP)");
-        program.add("");
-        program.add("// Computes R1=1 + ... + R0");
-        program.add("// i = 1");
         // line 2
-        program.add("@i // create index");
+        program.add("@i");
         // line 3
         program.add("D=M");
         // line 4
-        program.add("@R0");
+        program.add("@LOOP");
         // line 5
-        program.add("D = D - M");
+        program.add("D=D-M");
         // line 6
         program.add("@END");
         // line 7
@@ -44,20 +40,20 @@ public class ASMPreprocessorTest {
         // line 13
         program.add("0;JMP");
 
-        ASMPreprocessor preprocessor = new ASMPreprocessor();
-        List<String> result = preprocessor.process(program);
+        LabelsHandler handler = new LabelsHandler();
+        List<String> result = handler.handle(program);
 
         List<String> expected = new ArrayList<>();
         // line 0
-        expected.add("@16");
+        expected.add("@sum");
         // line 1
         expected.add("M=0");
         // line 2
-        expected.add("@17");
+        expected.add("@i");
         // line 3
         expected.add("D=M");
         // line 4
-        expected.add("@0");
+        expected.add("@2");
         // line 5
         expected.add("D=D-M");
         // line 6
@@ -76,6 +72,7 @@ public class ASMPreprocessorTest {
         expected.add("@12");
         // line 13
         expected.add("0;JMP");
+
         assertEquals(expected, result);
     }
 }
