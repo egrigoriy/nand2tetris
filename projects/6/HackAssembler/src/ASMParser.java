@@ -1,65 +1,90 @@
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
+/**
+ * Represents an ASM Parser for Hack Assembly Language
+ */
 public class ASMParser {
-    public List<Instruction> parse(List<String> instructions) {
-        List<Instruction> result = new ArrayList<>();
-        for (String inst : instructions) {
-            result.add(parse(inst));
-        }
-        return result;
+
+    /**
+     * Returns list of instructions corresponding to a given list of strings
+     * @param instructions
+     * @return list of instructions corresponding to a given list of strings
+     */
+    public static List<Instruction> parse(List<String> instructions) {
+       return instructions.stream()
+               .map(ASMParser::parse)
+               .collect(Collectors.toList());
     }
 
-    private Instruction parse(String inst) {
-        if (inst.startsWith("@")) {
-            return handleAInstruction(inst);
+    /**
+     * Returns the instruction corresponding to a given string
+     * @param instruction
+     * @return the instruction corresponding to a given string
+     */
+    private static Instruction parse(String instruction) {
+        if (AInstruction.isSuch(instruction)) {
+            return handleAInstruction(instruction);
         } else {
-            return handleCInstruction(inst);
+            return handleCInstruction(instruction);
         }
     }
 
-    private Instruction handleCInstruction(String inst) {
-        int indexOfAssign = inst.indexOf("=");
-        int indexOfSemicolon = inst.indexOf(";");
-        if ((indexOfAssign == -1) && (indexOfSemicolon == -1)) {
-            return new CInstruction(null, inst, null);
-        }
-        if ((indexOfAssign == -1) && (indexOfSemicolon != -1)) {
-            String comp = getComp(inst);
-            String jmp = getJmp(inst);
-            return new CInstruction(null, comp, jmp);
-        }
-        if ((indexOfAssign != -1) && (indexOfSemicolon == -1)) {
-            String dst = getDst(inst);
-            String comp = getComp(inst);
-            return new CInstruction(dst, comp, null);
-        }
-        String dst = getDst(inst);
-        String comp = getComp(inst);
-        String jmp = getJmp(inst);
+    /**
+     * Returns the AInstruction corresponding to a given string
+     * @param instruction
+     * @return AInstruction corresponding to a given string
+     */
+    private static Instruction handleAInstruction(String instruction) {
+        return new AInstruction(instruction.substring(1));
+    }
+
+    /**
+     * Returns the CInstruction corresponding to a given string
+     * @param instruction
+     * @return CInstruction corresponding to a given string
+     */
+    private static Instruction handleCInstruction(String instruction) {
+        String dst = getDst(instruction);
+        String comp = getComp(instruction);
+        String jmp = getJmp(instruction);
         return new CInstruction(dst, comp, jmp);
     }
 
-    private Instruction handleAInstruction(String inst) {
-        return new AInstruction(inst.substring(1));
+    /**
+     * Returns dst field of given instruction if present, otherwise null
+     * @param instruction
+     * @return dst field of given instruction if present, otherwise null
+     */
+    private static String getDst(String instruction) {
+        int indexOfAssign = instruction.indexOf("=");
+        if (indexOfAssign == -1) return null;
+        return instruction.substring(0, indexOfAssign);
     }
 
-    private String getJmp(String inst) {
-        int indexOfSemicolon = inst.indexOf(";");
-        return inst.substring(indexOfSemicolon + 1);
-    }
-
-    private String getComp(String inst) {
-        int indexOfAssign = inst.indexOf("=");
-        int indexOfSemicolon = inst.indexOf(";");
+    /**
+     * Returns comp field of given instruction if present, otherwise null
+     * @param instruction
+     * @return comp field of given instruction if present, otherwise null
+     */
+    private static String getComp(String instruction) {
+        int indexOfAssign = instruction.indexOf("=");
+        int indexOfSemicolon = instruction.indexOf(";");
         if (indexOfSemicolon == -1) {
-            return inst.substring(indexOfAssign + 1);
+            return instruction.substring(indexOfAssign + 1);
         }
-        return inst.substring(indexOfAssign + 1, indexOfSemicolon);
+        return instruction.substring(indexOfAssign + 1, indexOfSemicolon);
     }
 
-    private String getDst(String inst) {
-        int indexOfAssign = inst.indexOf("=");
-        return inst.substring(0, indexOfAssign);
+    /**
+     * Returns jmp field of given instruction if present, otherwise null
+     * @param instruction
+     * @return jmp field of given instruction if present, otherwise null
+     */
+    private static String getJmp(String instruction) {
+        int indexOfSemicolon = instruction.indexOf(";");
+        if (indexOfSemicolon == -1) return null;
+        return instruction.substring(indexOfSemicolon + 1);
     }
+
 }
