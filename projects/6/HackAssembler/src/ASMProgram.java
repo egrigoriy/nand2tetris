@@ -1,22 +1,26 @@
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
+/**
+ * Represents an ASMProgram using preprocessing and translating provided code from string to binary format
+ */
 
 public class ASMProgram {
-    List<String> asmText ;
-    List<Instruction> asmInstructions;
+    private final List<Instruction> asmInstructions;
 
-    public ASMProgram(List<String> lines) {
+    public ASMProgram(List<String> asmLines) {
         ASMPreprocessor preprocessor = new ASMPreprocessor();
-        asmText = preprocessor.process(lines);
-        ASMParser parser = new ASMParser();
-        asmInstructions = parser.parse(asmText);
+        List<String> asmLinesPreprocessed = preprocessor.process(asmLines);
+        asmInstructions = ASMParser.parse(asmLinesPreprocessed);
     }
 
-    public String toBinary() {
-        String result = "";
-        for (Instruction instruction : asmInstructions) {
-            result = result + instruction.toBinary() + "\n";
-        }
-        return result;
+    /**
+     * Returns the binary format representation of this ASMProgram
+     * @return the binary format representation of this ASMProgram
+     */
+    public List<String> toBinary() {
+        return asmInstructions.stream()
+                .map(Instruction::toBinary)
+                .collect(Collectors.toList());
     }
 }
