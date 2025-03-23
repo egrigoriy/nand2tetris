@@ -1,24 +1,41 @@
-import java.nio.charset.IllegalCharsetNameException;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class VMParser {
-    public static List<VMCommand> parse(List<String> lines) {
+    public static final int SP = 0;
+    public static final int LCL = 1;
+    public static final int ARG = 2;
+    public static final int THIS = 3;
+    public static final int THAT = 4;
+    public static final int temp = 5;
+    public static List<String> parse(List<String> lines) {
         return lines.stream().map(VMParser::parse).collect(Collectors.toList());
     }
 
-    private static VMCommand parse(String line) {
+    private static String parse(String line) {
         String[] vmCommand = line.split(" ");
         String operation = vmCommand[0];
-        if (operation.equals("push")) {
-            String segment = vmCommand[1];
-            int address = Integer.parseInt(vmCommand[2]);
-            return new PushCommand(segment, address);
+            switch (operation) {
+                case "push": return handlePush(vmCommand);
+                case "pop": return handlePop(vmCommand);
         }
+        return null;
     }
 
-    private static VMCommand handlePush(String[] command) {
-        return
+    private static String handlePop(String[] command) {
+       String segment = command[1];
+       String index = command[2];
+       return ASMMacro.popMemory(segment, index);
+    }
 
+    private static String handlePush(String[] command) {
+        String segment = command[1];
+        if (segment.equals("constant")) {
+            int value = Integer.parseInt(command[2]);
+            return ASMMacro.pushValue(value);
+        }
+        String index = command[2];
+        return ASMMacro.pushMemory(segment, index);
     }
 }

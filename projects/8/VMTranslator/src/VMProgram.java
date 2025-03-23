@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class VMProgram {
     public static final int SP = 0;
@@ -9,13 +10,21 @@ public class VMProgram {
     public static final int THAT = 4;
     public static final int temp = 5;
 
-    private List<VMCommand> vmCommands = new ArrayList<>();
+    private List<String> vmCommands = new ArrayList<>();
 
     public VMProgram(List<String> lines) {
-        vmCommands = VMParser.parse(lines);
+        // remove empty lines
+        vmCommands = lines.stream()
+                .filter(el -> !el.trim().isEmpty())
+                .collect(Collectors.toList());
+        // remove comments
+        vmCommands = vmCommands.stream()
+                .filter(el -> !el.trim().startsWith("//"))
+                .collect(Collectors.toList());
+        vmCommands = VMParser.parse(vmCommands);
     }
 
     public List<String> toASM() {
-        return null;
+        return vmCommands;
     }
 }

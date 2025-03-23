@@ -3,6 +3,23 @@ import java.util.List;
 import java.util.Map;
 
 public class ASMMacro {
+    public static final Map<String, String> map = Map.ofEntries(
+            Map.entry("local", "1"),
+            Map.entry("argument", "2"),
+            Map.entry("this", "3"),
+            Map.entry("that", "4"),
+            Map.entry("temp", "5")
+    );
+
+    public static String loadAddressToA(String register, String index) {
+        List<String> result = new ArrayList<>();
+        result.add("@" + register);
+        result.add("D=M");
+        result.add("@" + index);
+        result.add("A=A+D");
+        return String.join(System.lineSeparator(), result);
+
+    }
     public static String pushD() {
         List<String> result = new ArrayList<>();
         result.add("@0");
@@ -20,9 +37,9 @@ public class ASMMacro {
         return String.join(System.lineSeparator(), result);
     }
 
-    public static String pushMemory(int address) {
+    public static String pushMemory(String segment, String index) {
         List<String> result = new ArrayList<>();
-        result.add("@" + address);
+        result.add(loadAddressToA(map.get(segment), index));
         result.add("D=M");
         result.add(pushD());
         return String.join(System.lineSeparator(), result);
@@ -33,10 +50,15 @@ public class ASMMacro {
         result.add(decSP());
         result.add("@0");
         result.add("A=M");
-        result.add("M=D");
+        result.add("D=M");
         return String.join(System.lineSeparator(), result);
     }
 
+    /**
+     * Pop stack top element to A-register.
+     * IMPORTANT: D-register is not affected!!!!
+     * @return
+     */
     public static String popA() {
         List<String> result = new ArrayList<>();
         result.add(decSP());
@@ -46,10 +68,10 @@ public class ASMMacro {
         return String.join(System.lineSeparator(), result);
     }
 
-    public static String popMemory(int address) {
+    public static String popMemory(String register, String index) {
         List<String> result = new ArrayList<>();
         result.add(popD());
-        result.add("@" + address);
+        result.add(loadAddressToA(register, index));
         result.add("M=D");
         return String.join(System.lineSeparator(), result);
     }
