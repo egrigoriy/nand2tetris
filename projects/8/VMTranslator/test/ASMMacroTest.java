@@ -15,8 +15,7 @@ public class ASMMacroTest {
                 "@SP",
                 "A=M",
                 "M=D",
-                "@SP",
-                "M=M+1"
+                incSP()
         );
         String expected = String.join(System.lineSeparator(), expectedAsList);
         assertEquals(expected, ASMMacro.pushValue(value));
@@ -36,8 +35,7 @@ public class ASMMacroTest {
                 "@SP",
                 "A=M",
                 "M=D",
-                "@SP",
-                "M=M+1"
+                incSP()
         );
         String expected = String.join(System.lineSeparator(), expectedAsList);
         assertEquals(expected, ASMMacro.pushMemory(segment, index));
@@ -57,8 +55,7 @@ public class ASMMacroTest {
                 "@SP",
                 "A=M",
                 "M=D",
-                "@SP",
-                "M=M+1"
+                incSP()
         );
         String expected = String.join(System.lineSeparator(), expectedAsList);
         assertEquals(expected, ASMMacro.pushMemory(segment, index));
@@ -78,8 +75,7 @@ public class ASMMacroTest {
                 "@SP",
                 "A=M",
                 "M=D",
-                "@SP",
-                "M=M+1"
+                incSP()
         );
         String expected = String.join(System.lineSeparator(), expectedAsList);
         assertEquals(expected, ASMMacro.pushMemory(segment, index));
@@ -99,8 +95,7 @@ public class ASMMacroTest {
                 "@SP",
                 "A=M",
                 "M=D",
-                "@SP",
-                "M=M+1"
+                incSP()
         );
         String expected = String.join(System.lineSeparator(), expectedAsList);
         assertEquals(expected, ASMMacro.pushMemory(segment, index));
@@ -108,23 +103,20 @@ public class ASMMacroTest {
 
     @Test
     public void testPushTemp() {
-        String index = "55";
+        String index = "6";
         String segment = "temp";
         String segmentRegister = "5";
+        int address = Integer.parseInt(segmentRegister) + Integer.parseInt(index);
         List<String> expectedAsList = List.of(
-                "@" + segmentRegister,
-                "D=M",
-                "@" + index,
-                "A=D+A",
+                "@" + address,
                 "D=M",
                 "@SP",
                 "A=M",
                 "M=D",
-                "@SP",
-                "M=M+1"
+                incSP()
         );
         String expected = String.join(System.lineSeparator(), expectedAsList);
-        assertEquals(expected, ASMMacro.pushMemory(segment, index));
+        assertEquals(expected, ASMMacro.pushTemp(index));
     }
 
 
@@ -140,8 +132,7 @@ public class ASMMacroTest {
                 "D=D+A",
                 "@R13",
                 "M=D",
-                "@SP",
-                "M=M-1",
+                decSP(),
                 "@SP",
                 "A=M",
                 "D=M",
@@ -152,6 +143,7 @@ public class ASMMacroTest {
         String expected = String.join(System.lineSeparator(), expectedAsList);
         assertEquals(expected, ASMMacro.popMemory(segment, index));
     }
+
     @Test
     public void testPopArgument() {
         String index = "22";
@@ -164,8 +156,7 @@ public class ASMMacroTest {
                 "D=D+A",
                 "@R13",
                 "M=D",
-                "@SP",
-                "M=M-1",
+                decSP(),
                 "@SP",
                 "A=M",
                 "D=M",
@@ -176,6 +167,7 @@ public class ASMMacroTest {
         String expected = String.join(System.lineSeparator(), expectedAsList);
         assertEquals(expected, ASMMacro.popMemory(segment, index));
     }
+
     @Test
     public void testPopThis() {
         String index = "33";
@@ -188,8 +180,7 @@ public class ASMMacroTest {
                 "D=D+A",
                 "@R13",
                 "M=D",
-                "@SP",
-                "M=M-1",
+                decSP(),
                 "@SP",
                 "A=M",
                 "D=M",
@@ -200,6 +191,7 @@ public class ASMMacroTest {
         String expected = String.join(System.lineSeparator(), expectedAsList);
         assertEquals(expected, ASMMacro.popMemory(segment, index));
     }
+
     @Test
     public void testPopThat() {
         String index = "44";
@@ -212,8 +204,7 @@ public class ASMMacroTest {
                 "D=D+A",
                 "@R13",
                 "M=D",
-                "@SP",
-                "M=M-1",
+                decSP(),
                 "@SP",
                 "A=M",
                 "D=M",
@@ -224,28 +215,83 @@ public class ASMMacroTest {
         String expected = String.join(System.lineSeparator(), expectedAsList);
         assertEquals(expected, ASMMacro.popMemory(segment, index));
     }
+
     @Test
     public void testPopTemp() {
-        String index = "55";
+        String index = "6";
         String segment = "temp";
         String segmentRegister = "5";
+        int address = Integer.parseInt(segmentRegister) + Integer.parseInt(index);
         List<String> expectedAsList = List.of(
-                "@" + segmentRegister,
-                "D=M",
-                "@" + index,
-                "D=D+A",
-                "@R13",
-                "M=D",
-                "@SP",
-                "M=M-1",
-                "@SP",
-                "A=M",
-                "D=M",
-                "@R13",
-                "A=M",
+                popToD(),
+                "@" + address,
                 "M=D"
         );
         String expected = String.join(System.lineSeparator(), expectedAsList);
-        assertEquals(expected, ASMMacro.popMemory(segment, index));
+        assertEquals(expected, ASMMacro.popTemp(index));
+    }
+
+    @Test
+    public void testAdd() {
+        List<String> expectedAsList = List.of(
+                popToD(),
+                popToA(),
+                "D=D+A",
+                pushFromD()
+        );
+        String expected = String.join(System.lineSeparator(), expectedAsList);
+        assertEquals(expected, ASMMacro.add());
+    }
+
+    @Test
+    public void testSub() {
+        List<String> expectedAsList = List.of(
+                popToD(),
+                popToA(),
+                "D=A-D",
+                pushFromD()
+        );
+        String expected = String.join(System.lineSeparator(), expectedAsList);
+        assertEquals(expected, ASMMacro.sub());
+    }
+
+    private String pushFromD() {
+        List<String> result = List.of(
+                "@SP",
+                "A=M",
+                "M=D",
+                incSP()
+        );
+        return String.join(System.lineSeparator(), result);
+    }
+
+    private String popToA() {
+        List<String> result = List.of(
+                decSP(),
+                "@SP",
+                "A=M",
+                "A=M"
+        );
+        return String.join(System.lineSeparator(), result);
+    }
+
+    private String popToD() {
+        List<String> result = List.of(
+                decSP(),
+                "@SP",
+                "A=M",
+                "D=M"
+        );
+        return String.join(System.lineSeparator(), result);
+    }
+
+    private String incSP() {
+        return "@SP" + System.lineSeparator() +
+                "M=M+1";
+    }
+
+    private String decSP() {
+        return "@SP" + System.lineSeparator() +
+                "M=M-1";
     }
 }

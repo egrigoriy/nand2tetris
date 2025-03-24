@@ -68,6 +68,16 @@ public class ASMMacro {
         return String.join(System.lineSeparator(), result);
     }
 
+    public static String pushTemp(String index) {
+        int address = Integer.parseInt(map.get("temp")) + Integer.parseInt(index);
+        List<String> result = List.of(
+                "@" + address,
+                "D=M",
+                pushD()
+        );
+        return String.join(System.lineSeparator(), result);
+    }
+
     public static String popD() {
         List<String> result = List.of(
                 decSP(),
@@ -104,6 +114,16 @@ public class ASMMacro {
         return String.join(System.lineSeparator(), result);
     }
 
+    public static String popTemp(String index) {
+        int address = Integer.parseInt(map.get("temp")) + Integer.parseInt(index);
+        List<String> result = List.of(
+                popD(),
+                "@" + address,
+                "M=D"
+        );
+        return String.join(System.lineSeparator(), result);
+    }
+
     public static String incSP() {
         List<String> result = List.of(
                 "@SP",
@@ -119,4 +139,25 @@ public class ASMMacro {
         );
         return String.join(System.lineSeparator(), result);
     }
+
+    public static String add() {
+        List<String> result = List.of(
+                popD(),
+                popA(),
+                "D=D+A",
+                pushD()
+        );
+        return String.join(System.lineSeparator(), result);
+    }
+
+    public static String sub() {
+        List<String> result = List.of(
+                popD(),
+                popA(),
+                "D=A-D",
+                pushD()
+        );
+        return String.join(System.lineSeparator(), result);
+    }
+
 }

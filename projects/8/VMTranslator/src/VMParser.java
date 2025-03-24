@@ -19,13 +19,26 @@ public class VMParser {
             switch (operation) {
                 case "push": return handlePush(vmCommand);
                 case "pop": return handlePop(vmCommand);
+                case "add": return handleAdd();
+                case "sub": return handleSub();
         }
         return null;
+    }
+
+    private static String handleSub() {
+        return ASMMacro.sub();
+    }
+
+    private static String handleAdd() {
+        return ASMMacro.add();
     }
 
     private static String handlePop(String[] command) {
        String segment = command[1];
        String index = command[2];
+       if (segment.equals("temp")) {
+           return ASMMacro.popTemp(index);
+       }
        return ASMMacro.popMemory(segment, index);
     }
 
@@ -34,6 +47,10 @@ public class VMParser {
         if (segment.equals("constant")) {
             String value = command[2];
             return ASMMacro.pushValue(value);
+        }
+        if (segment.equals("temp")) {
+            String index = command[2];
+            return ASMMacro.pushTemp(index);
         }
         String index = command[2];
         return ASMMacro.pushMemory(segment, index);
