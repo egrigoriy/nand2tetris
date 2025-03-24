@@ -32,7 +32,7 @@ public class VMParser {
     private static String handlePush(String[] command) {
         String segment = command[1];
         if (segment.equals("constant")) {
-            int value = Integer.parseInt(command[2]);
+            String value = command[2];
             return ASMMacro.pushValue(value);
         }
         String index = command[2];

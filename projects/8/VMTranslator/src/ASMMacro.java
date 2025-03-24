@@ -16,77 +16,107 @@ public class ASMMacro {
         result.add("@" + register);
         result.add("D=M");
         result.add("@" + index);
-        result.add("A=A+D");
+        result.add("A=D+A");
         return String.join(System.lineSeparator(), result);
-
     }
+
+    /**
+     * Calculate absolute address from given register pointer and index.
+     * Put the result in general purpose register R13
+     *
+     * @param register
+     * @param index
+     * @return
+     */
+    public static String calculateAbsAddressToR13(String register, String index) {
+        List<String> result = List.of(
+                "@" + register,
+                "D=M",
+                "@" + index,
+                "D=D+A",
+                "@R13",
+                "M=D"
+        );
+        return String.join(System.lineSeparator(), result);
+    }
+
     public static String pushD() {
-        List<String> result = new ArrayList<>();
-        result.add("@0");
-        result.add("A=M");
-        result.add("M=D");
-        result.add(incSP());
+        List<String> result = List.of(
+                "@SP",
+                "A=M",
+                "M=D",
+                incSP()
+        );
         return String.join(System.lineSeparator(), result);
     }
 
-    public static String pushValue(int value) {
-        List<String> result = new ArrayList<>();
-        result.add("@" + value);
-        result.add("D=A");
-        result.add(pushD());
+    public static String pushValue(String value) {
+        List<String> result = List.of(
+                "@" + value,
+                "D=A",
+                pushD()
+        );
         return String.join(System.lineSeparator(), result);
     }
 
     public static String pushMemory(String segment, String index) {
-        List<String> result = new ArrayList<>();
-        result.add(loadAddressToA(map.get(segment), index));
-        result.add("D=M");
-        result.add(pushD());
+        List<String> result = List.of(
+                loadAddressToA(map.get(segment), index),
+                "D=M",
+                pushD()
+        );
         return String.join(System.lineSeparator(), result);
     }
 
     public static String popD() {
-        List<String> result = new ArrayList<>();
-        result.add(decSP());
-        result.add("@0");
-        result.add("A=M");
-        result.add("D=M");
+        List<String> result = List.of(
+                decSP(),
+                "@SP",
+                "A=M",
+                "D=M"
+        );
         return String.join(System.lineSeparator(), result);
     }
 
     /**
      * Pop stack top element to A-register.
      * IMPORTANT: D-register is not affected!!!!
+     *
      * @return
      */
     public static String popA() {
         List<String> result = new ArrayList<>();
         result.add(decSP());
-        result.add("@0");
+        result.add("@SP");
         result.add("A=M");
         result.add("A=M");
         return String.join(System.lineSeparator(), result);
     }
 
     public static String popMemory(String register, String index) {
-        List<String> result = new ArrayList<>();
-        result.add(popD());
-        result.add(loadAddressToA(register, index));
-        result.add("M=D");
+        List<String> result = List.of(
+                calculateAbsAddressToR13(map.get(register), index),
+                popD(),
+                "@R13",
+                "A=M",
+                "M=D"
+        );
         return String.join(System.lineSeparator(), result);
     }
 
     public static String incSP() {
-        List<String> result = new ArrayList<>();
-        result.add("@0");
-        result.add("M=M+1");
+        List<String> result = List.of(
+                "@SP",
+                "M=M+1"
+        );
         return String.join(System.lineSeparator(), result);
     }
 
     public static String decSP() {
-        List<String> result = new ArrayList<>();
-        result.add("@0");
-        result.add("M=M-1");
+        List<String> result = List.of(
+                "@SP",
+                "M=M-1"
+        );
         return String.join(System.lineSeparator(), result);
     }
 }
