@@ -232,6 +232,88 @@ public class ASMMacroTest {
         assertEquals(expected, ASMMacro.sub());
     }
 
+    @Test
+    public void testNeg() {
+        List<String> expectedAsList = List.of(
+                popToD(),
+                "D=-D",
+                pushFromD()
+        );
+        String expected = String.join(System.lineSeparator(), expectedAsList);
+        assertEquals(expected, ASMMacro.neg());
+    }
+
+    @Test
+    public void testNot() {
+        List<String> expectedAsList = List.of(
+                popToD(),
+                "D=!D",
+                pushFromD()
+        );
+        String expected = String.join(System.lineSeparator(), expectedAsList);
+        assertEquals(expected, ASMMacro.not());
+    }
+
+    @Test
+    public void testAnd() {
+        List<String> expectedAsList = List.of(
+                popToD(),
+                popToA(),
+                "D=D&A",
+                pushFromD()
+        );
+        String expected = String.join(System.lineSeparator(), expectedAsList);
+        assertEquals(expected, ASMMacro.and());
+    }
+
+    @Test
+    public void testOr() {
+        List<String> expectedAsList = List.of(
+                popToD(),
+                popToA(),
+                "D=D|A",
+                pushFromD()
+        );
+        String expected = String.join(System.lineSeparator(), expectedAsList);
+        assertEquals(expected, ASMMacro.or());
+    }
+    @Test
+    public void testEq() {
+        List<String> expectedAsList = List.of(
+                popToD(),
+                popToA(),
+                "D=A-D",
+                "@TRUE",
+                "D;JEQ",
+                "D=0",
+                "@END",
+                "0;JMP",
+                "(TRUE)",
+                "D=-1",
+                "(END)",
+                "@NEXT",
+                "0;JMP",
+                "(NEXT)",
+                pushFromD()
+        );
+        String expected = String.join(System.lineSeparator(), expectedAsList);
+        assertEquals(expected, ASMMacro.eq());
+    }
+
+    private String putToDBooleanIf(String condition) {
+        List<String> result = List.of(
+                "@TRUE",
+                "D;J" + condition.toUpperCase(),
+                "D=0",
+                "@END",
+                "0;JMP",
+                "(TRUE)",
+                "D=-1",
+                "(END)"
+        );
+        return String.join(System.lineSeparator(), result);
+    }
+
     private String pushFromD() {
         List<String> result = List.of(
                 "@SP",

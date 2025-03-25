@@ -1,5 +1,6 @@
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 public class ASMMacro {
     public static final Map<String, String> map = Map.ofEntries(
@@ -192,4 +193,90 @@ public class ASMMacro {
         return String.join(System.lineSeparator(), result);
     }
 
+    public static String neg() {
+        List<String> result = List.of(
+                popD(),
+                "D=-D",
+                pushD()
+        );
+        return String.join(System.lineSeparator(), result);
+    }
+
+    public static String not() {
+        List<String> result = List.of(
+                popD(),
+                "D=!D",
+                pushD()
+        );
+        return String.join(System.lineSeparator(), result);
+    }
+
+    public static String and() {
+        List<String> result = List.of(
+                popD(),
+                popA(),
+                "D=D&A",
+                pushD()
+        );
+        return String.join(System.lineSeparator(), result);
+    }
+
+    public static String or() {
+        List<String> result = List.of(
+                popD(),
+                popA(),
+                "D=D|A",
+                pushD()
+        );
+        return String.join(System.lineSeparator(), result);
+    }
+
+    public static String lt() {
+        List<String> result = List.of(
+                popD(),
+                popA(),
+                "D=A-D",
+                putToDTrueFalseIf("LT"),
+                pushD()
+        );
+        return String.join(System.lineSeparator(), result);
+    }
+
+    public static String gt() {
+        List<String> result = List.of(
+                popD(),
+                popA(),
+                "D=A-D",
+                putToDTrueFalseIf("GT"),
+                pushD()
+        );
+        return String.join(System.lineSeparator(), result);
+    }
+
+    public static String eq() {
+        List<String> result = List.of(
+                popD(),
+                popA(),
+                "D=A-D",
+                putToDTrueFalseIf("EQ"),
+                pushD()
+        );
+        return String.join(System.lineSeparator(), result);
+    }
+    private static String putToDTrueFalseIf(String condition) {
+        int random = new Random().nextInt((int) (Math.pow(2, 16) + 1));
+        String labelTRUE = "TRUE" + random;
+        String labelEND = "END" + random;
+        List<String> result = List.of(
+                "@" + labelTRUE,
+                "D;J" + condition.toUpperCase(),
+                "D=0",
+                "@" + labelEND,
+                "0;JMP",
+                "(" + labelTRUE + ")",
+                "D=-1",
+                "(" + labelEND + ")"
+        );
+        return String.join(System.lineSeparator(), result);
+    }
 }

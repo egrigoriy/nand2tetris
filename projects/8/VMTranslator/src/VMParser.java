@@ -20,8 +20,43 @@ public class VMParser {
                 case "pop": return handlePop(vmCommand);
                 case "add": return handleAdd();
                 case "sub": return handleSub();
+                case "neg": return handleNeg();
+                case "not": return handleNot();
+                case "or": return handleOr();
+                case "and": return handleAnd();
+                case "eq": return handleEq();
+                case "gt": return handleGt();
+                case "lt": return handleLt();
         }
         return null;
+    }
+
+    private static String handleLt() {
+        return ASMMacro.lt();
+    }
+
+    private static String handleGt() {
+        return ASMMacro.gt();
+    }
+
+    private static String handleEq() {
+        return ASMMacro.eq();
+    }
+
+    private static String handleAnd() {
+        return ASMMacro.and();
+    }
+
+    private static String handleOr() {
+        return ASMMacro.or();
+    }
+
+    private static String handleNot() {
+        return ASMMacro.not();
+    }
+
+    private static String handleNeg() {
+        return ASMMacro.neg();
     }
 
     private static String handleSub() {
