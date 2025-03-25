@@ -1,5 +1,4 @@
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 public class VMParser {
@@ -53,6 +52,6 @@ public class VMParser {
             return ASMMacro.pushTemp(index);
         }
         String index = command[2];
-        return ASMMacro.pushMemory(segment, index);
+        return ASMMacro.pushPointedMemory(segment, index);
     }
 }

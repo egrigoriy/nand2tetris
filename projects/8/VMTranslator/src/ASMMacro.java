@@ -1,4 +1,3 @@
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -11,12 +10,55 @@ public class ASMMacro {
             Map.entry("temp", "5")
     );
 
-    public static String loadAddressToA(String register, String index) {
-        List<String> result = new ArrayList<>();
-        result.add("@" + register);
-        result.add("D=M");
-        result.add("@" + index);
-        result.add("A=D+A");
+    public static String loadAddressToD(String address) {
+        List<String> result = List.of(
+                "@" + address,
+                "D=M"
+        );
+        return String.join(System.lineSeparator(), result);
+    }
+
+    public static String storeDToAddress(String address) {
+        List<String> result = List.of(
+                "@" + address,
+                "M=D"
+        );
+        return String.join(System.lineSeparator(), result);
+    }
+
+    public static String storeSumToR13(String register, String index) {
+        List<String> result = List.of(
+                loadAddressToD(register),
+                "@" + index,
+                "D=D+A",
+                storeDToAddress("R13")
+        );
+        return String.join(System.lineSeparator(), result);
+    }
+
+    public static String loadToDAddressPointedBy(String register) {
+        List<String> result = List.of(
+                "@" + register,
+                "A=M",
+                "D=M"
+        );
+        return String.join(System.lineSeparator(), result);
+    }
+
+
+    public static String storeDToAddressPointedBy(String register) {
+        List<String> result = List.of(
+                "@" + register,
+                "A=M",
+                "M=D"
+        );
+        return String.join(System.lineSeparator(), result);
+    }
+    public static String loadValueToD(String value) {
+        List<String> result = List.of(
+                "@" + value,
+                "D=A"
+        );
         return String.join(System.lineSeparator(), result);
     }
 
@@ -30,39 +72,34 @@ public class ASMMacro {
      */
     public static String calculateAbsAddressToR13(String register, String index) {
         List<String> result = List.of(
-                "@" + register,
-                "D=M",
+                loadAddressToD(register),
                 "@" + index,
                 "D=D+A",
-                "@R13",
-                "M=D"
+                storeDToAddress("R13")
         );
         return String.join(System.lineSeparator(), result);
     }
 
-    public static String pushD() {
+    private static String pushD() {
         List<String> result = List.of(
-                "@SP",
-                "A=M",
-                "M=D",
-                incSP()
+                storeDToAddressPointedBy("SP"),
+                increment("SP")
         );
         return String.join(System.lineSeparator(), result);
     }
 
     public static String pushValue(String value) {
         List<String> result = List.of(
-                "@" + value,
-                "D=A",
+                loadValueToD(value),
                 pushD()
         );
         return String.join(System.lineSeparator(), result);
     }
 
-    public static String pushMemory(String segment, String index) {
+    public static String pushPointedMemory(String segment, String index) {
         List<String> result = List.of(
-                loadAddressToA(map.get(segment), index),
-                "D=M",
+                storeSumToR13(map.get(segment), index),
+                loadToDAddressPointedBy("R13"),
                 pushD()
         );
         return String.join(System.lineSeparator(), result);
@@ -71,8 +108,7 @@ public class ASMMacro {
     public static String pushTemp(String index) {
         int address = Integer.parseInt(map.get("temp")) + Integer.parseInt(index);
         List<String> result = List.of(
-                "@" + address,
-                "D=M",
+                loadAddressToD(String.valueOf(address)),
                 pushD()
         );
         return String.join(System.lineSeparator(), result);
@@ -80,10 +116,8 @@ public class ASMMacro {
 
     public static String popD() {
         List<String> result = List.of(
-                decSP(),
-                "@SP",
-                "A=M",
-                "D=M"
+                decrement("SP"),
+                loadToDAddressPointedBy("SP")
         );
         return String.join(System.lineSeparator(), result);
     }
@@ -95,11 +129,12 @@ public class ASMMacro {
      * @return
      */
     public static String popA() {
-        List<String> result = new ArrayList<>();
-        result.add(decSP());
-        result.add("@SP");
-        result.add("A=M");
-        result.add("A=M");
+        List<String> result = List.of(
+                decrement("SP"),
+                "@SP",
+                "A=M",
+                "A=M"
+        );
         return String.join(System.lineSeparator(), result);
     }
 
@@ -107,9 +142,7 @@ public class ASMMacro {
         List<String> result = List.of(
                 calculateAbsAddressToR13(map.get(register), index),
                 popD(),
-                "@R13",
-                "A=M",
-                "M=D"
+                storeDToAddressPointedBy("R13")
         );
         return String.join(System.lineSeparator(), result);
     }
@@ -118,23 +151,22 @@ public class ASMMacro {
         int address = Integer.parseInt(map.get("temp")) + Integer.parseInt(index);
         List<String> result = List.of(
                 popD(),
-                "@" + address,
-                "M=D"
+                storeDToAddress(String.valueOf(address))
         );
         return String.join(System.lineSeparator(), result);
     }
 
-    public static String incSP() {
+    public static String increment(String register) {
         List<String> result = List.of(
-                "@SP",
+                "@" + register,
                 "M=M+1"
         );
         return String.join(System.lineSeparator(), result);
     }
 
-    public static String decSP() {
+    public static String decrement(String register) {
         List<String> result = List.of(
-                "@SP",
+                "@" + register,
                 "M=M-1"
         );
         return String.join(System.lineSeparator(), result);

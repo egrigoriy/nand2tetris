@@ -27,18 +27,13 @@ public class ASMMacroTest {
         String segment = "local";
         String segmentRegister = "1";
         List<String> expectedAsList = List.of(
-                "@" + segmentRegister,
-                "D=M",
-                "@" + index,
-                "A=D+A",
-                "D=M",
-                "@SP",
-                "A=M",
-                "M=D",
-                incSP()
+                storeSumToR13(segmentRegister, index),
+                loadToDPointedAddressPointedBy("R13"),
+                pushFromD()
         );
+
         String expected = String.join(System.lineSeparator(), expectedAsList);
-        assertEquals(expected, ASMMacro.pushMemory(segment, index));
+        assertEquals(expected, ASMMacro.pushPointedMemory(segment, index));
     }
 
     @Test
@@ -47,18 +42,12 @@ public class ASMMacroTest {
         String segment = "argument";
         String baseRegister = "2";
         List<String> expectedAsList = List.of(
-                "@" + baseRegister,
-                "D=M",
-                "@" + index,
-                "A=D+A",
-                "D=M",
-                "@SP",
-                "A=M",
-                "M=D",
-                incSP()
+                storeSumToR13(baseRegister, index),
+                loadToDPointedAddressPointedBy("R13"),
+                pushFromD()
         );
         String expected = String.join(System.lineSeparator(), expectedAsList);
-        assertEquals(expected, ASMMacro.pushMemory(segment, index));
+        assertEquals(expected, ASMMacro.pushPointedMemory(segment, index));
     }
 
     @Test
@@ -67,18 +56,12 @@ public class ASMMacroTest {
         String segment = "this";
         String segmentRegister = "3";
         List<String> expectedAsList = List.of(
-                "@" + segmentRegister,
-                "D=M",
-                "@" + index,
-                "A=D+A",
-                "D=M",
-                "@SP",
-                "A=M",
-                "M=D",
-                incSP()
+                storeSumToR13(segmentRegister, index),
+                loadToDPointedAddressPointedBy("R13"),
+                pushFromD()
         );
         String expected = String.join(System.lineSeparator(), expectedAsList);
-        assertEquals(expected, ASMMacro.pushMemory(segment, index));
+        assertEquals(expected, ASMMacro.pushPointedMemory(segment, index));
     }
 
     @Test
@@ -87,18 +70,12 @@ public class ASMMacroTest {
         String segment = "that";
         String segmentRegister = "4";
         List<String> expectedAsList = List.of(
-                "@" + segmentRegister,
-                "D=M",
-                "@" + index,
-                "A=D+A",
-                "D=M",
-                "@SP",
-                "A=M",
-                "M=D",
-                incSP()
+                storeSumToR13(segmentRegister, index),
+                loadToDPointedAddressPointedBy("R13"),
+                pushFromD()
         );
         String expected = String.join(System.lineSeparator(), expectedAsList);
-        assertEquals(expected, ASMMacro.pushMemory(segment, index));
+        assertEquals(expected, ASMMacro.pushPointedMemory(segment, index));
     }
 
     @Test
@@ -285,6 +262,14 @@ public class ASMMacroTest {
         return String.join(System.lineSeparator(), result);
     }
 
+    private String loadToDPointedAddressPointedBy(String register) {
+        List<String> result = List.of(
+                "@" + register,
+                "A=M",
+                "D=M"
+        );
+        return String.join(System.lineSeparator(), result);
+    }
     private String incSP() {
         return "@SP" + System.lineSeparator() +
                 "M=M+1";
@@ -293,5 +278,17 @@ public class ASMMacroTest {
     private String decSP() {
         return "@SP" + System.lineSeparator() +
                 "M=M-1";
+    }
+
+    private String storeSumToR13(String register, String index) {
+        List<String> result = List.of(
+                "@" + register,
+                "D=M",
+                "@" + index,
+                "D=D+A",
+                "@R13",
+                "M=D"
+        );
+        return String.join(System.lineSeparator(), result);
     }
 }
