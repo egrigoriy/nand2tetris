@@ -8,7 +8,8 @@ public class ASMMacro {
             Map.entry("argument", "2"),
             Map.entry("this", "3"),
             Map.entry("that", "4"),
-            Map.entry("temp", "5")
+            Map.entry("temp", "5"),
+            Map.entry("static", "16")
     );
 
     public static String loadAddressToD(String address) {
@@ -81,7 +82,7 @@ public class ASMMacro {
         return String.join(System.lineSeparator(), result);
     }
 
-    private static String pushD() {
+    private static String pushFromD() {
         List<String> result = List.of(
                 storeDToAddressPointedBy("SP"),
                 increment("SP")
@@ -92,7 +93,7 @@ public class ASMMacro {
     public static String pushValue(String value) {
         List<String> result = List.of(
                 loadValueToD(value),
-                pushD()
+                pushFromD()
         );
         return String.join(System.lineSeparator(), result);
     }
@@ -101,7 +102,7 @@ public class ASMMacro {
         List<String> result = List.of(
                 storeSumToR13(map.get(segment), index),
                 loadToDAddressPointedBy("R13"),
-                pushD()
+                pushFromD()
         );
         return String.join(System.lineSeparator(), result);
     }
@@ -110,12 +111,12 @@ public class ASMMacro {
         int address = Integer.parseInt(map.get("temp")) + Integer.parseInt(index);
         List<String> result = List.of(
                 loadAddressToD(String.valueOf(address)),
-                pushD()
+                pushFromD()
         );
         return String.join(System.lineSeparator(), result);
     }
 
-    public static String popD() {
+    public static String popToD() {
         List<String> result = List.of(
                 decrement("SP"),
                 loadToDAddressPointedBy("SP")
@@ -142,7 +143,7 @@ public class ASMMacro {
     public static String popMemory(String register, String index) {
         List<String> result = List.of(
                 calculateAbsAddressToR13(map.get(register), index),
-                popD(),
+                popToD(),
                 storeDToAddressPointedBy("R13")
         );
         return String.join(System.lineSeparator(), result);
@@ -151,7 +152,7 @@ public class ASMMacro {
     public static String popTemp(String index) {
         int address = Integer.parseInt(map.get("temp")) + Integer.parseInt(index);
         List<String> result = List.of(
-                popD(),
+                popToD(),
                 storeDToAddress(String.valueOf(address))
         );
         return String.join(System.lineSeparator(), result);
@@ -175,91 +176,91 @@ public class ASMMacro {
 
     public static String add() {
         List<String> result = List.of(
-                popD(),
+                popToD(),
                 popA(),
                 "D=D+A",
-                pushD()
+                pushFromD()
         );
         return String.join(System.lineSeparator(), result);
     }
 
     public static String sub() {
         List<String> result = List.of(
-                popD(),
+                popToD(),
                 popA(),
                 "D=A-D",
-                pushD()
+                pushFromD()
         );
         return String.join(System.lineSeparator(), result);
     }
 
     public static String neg() {
         List<String> result = List.of(
-                popD(),
+                popToD(),
                 "D=-D",
-                pushD()
+                pushFromD()
         );
         return String.join(System.lineSeparator(), result);
     }
 
     public static String not() {
         List<String> result = List.of(
-                popD(),
+                popToD(),
                 "D=!D",
-                pushD()
+                pushFromD()
         );
         return String.join(System.lineSeparator(), result);
     }
 
     public static String and() {
         List<String> result = List.of(
-                popD(),
+                popToD(),
                 popA(),
                 "D=D&A",
-                pushD()
+                pushFromD()
         );
         return String.join(System.lineSeparator(), result);
     }
 
     public static String or() {
         List<String> result = List.of(
-                popD(),
+                popToD(),
                 popA(),
                 "D=D|A",
-                pushD()
+                pushFromD()
         );
         return String.join(System.lineSeparator(), result);
     }
 
     public static String lt() {
         List<String> result = List.of(
-                popD(),
+                popToD(),
                 popA(),
                 "D=A-D",
                 putToDTrueFalseIf("LT"),
-                pushD()
+                pushFromD()
         );
         return String.join(System.lineSeparator(), result);
     }
 
     public static String gt() {
         List<String> result = List.of(
-                popD(),
+                popToD(),
                 popA(),
                 "D=A-D",
                 putToDTrueFalseIf("GT"),
-                pushD()
+                pushFromD()
         );
         return String.join(System.lineSeparator(), result);
     }
 
     public static String eq() {
         List<String> result = List.of(
-                popD(),
+                popToD(),
                 popA(),
                 "D=A-D",
                 putToDTrueFalseIf("EQ"),
-                pushD()
+                pushFromD()
         );
         return String.join(System.lineSeparator(), result);
     }
@@ -283,7 +284,7 @@ public class ASMMacro {
     public static String pushThis() {
         List<String> result = List.of(
                 loadAddressToD(map.get("this")),
-                pushD()
+                pushFromD()
         );
         return String.join(System.lineSeparator(), result);
     }
@@ -291,14 +292,14 @@ public class ASMMacro {
     public static String pushThat() {
         List<String> result = List.of(
                 loadAddressToD(map.get("that")),
-                pushD()
+                pushFromD()
         );
         return String.join(System.lineSeparator(), result);
     }
 
     public static String popThis() {
         List<String> result = List.of(
-                popD(),
+                popToD(),
                 storeDToAddress(map.get("this"))
         );
         return String.join(System.lineSeparator(), result);
@@ -306,8 +307,26 @@ public class ASMMacro {
 
     public static String popThat() {
         List<String> result = List.of(
-                popD(),
+                popToD(),
                 storeDToAddress(map.get("that"))
+        );
+        return String.join(System.lineSeparator(), result);
+    }
+
+    public static String popStatic(String index) {
+        int address = Integer.parseInt(map.get("static")) + Integer.parseInt(index);
+        List<String> result = List.of(
+                popToD(),
+                storeDToAddress(String.valueOf(address))
+        );
+        return String.join(System.lineSeparator(), result);
+    }
+
+    public static String pushStatic(String index) {
+        int address = Integer.parseInt(map.get("static")) + Integer.parseInt(index);
+        List<String> result = List.of(
+                loadAddressToD(String.valueOf(address)),
+                pushFromD()
         );
         return String.join(System.lineSeparator(), result);
     }

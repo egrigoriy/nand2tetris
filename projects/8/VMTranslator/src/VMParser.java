@@ -91,6 +91,9 @@ public class VMParser {
         if (segment.equals("pointer") && index.equals("1")) {
             return ASMMacro.popThat();
         }
+        if (segment.equals("static")) {
+            return ASMMacro.popStatic(index);
+        }
         return ASMMacro.popMemory(segment, index);
     }
 
@@ -108,6 +111,9 @@ public class VMParser {
         }
         if (segment.equals("pointer") && index.equals("1")) {
             return ASMMacro.pushThat();
+        }
+        if (segment.equals("static")) {
+            return ASMMacro.pushStatic(index);
         }
         return ASMMacro.pushPointedMemory(segment, index);
     }

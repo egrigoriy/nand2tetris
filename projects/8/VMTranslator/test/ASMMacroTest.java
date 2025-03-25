@@ -325,6 +325,37 @@ public class ASMMacroTest {
         assertEquals(expected, ASMMacro.popThat());
     }
 
+    @Test
+    public void testPushStatic() {
+        String index = "6";
+        String segment = "static";
+        String segmentRegister = "16";
+        int address = Integer.parseInt(segmentRegister) + Integer.parseInt(index);
+        List<String> expectedAsList = List.of(
+                "@" + address,
+                "D=M",
+                "@SP",
+                "A=M",
+                "M=D",
+                incSP()
+        );
+        String expected = String.join(System.lineSeparator(), expectedAsList);
+        assertEquals(expected, ASMMacro.pushStatic(index));
+    }
+    @Test
+    public void testPopStatic() {
+        String index = "6";
+        String segment = "static";
+        String segmentRegister = "16";
+        int address = Integer.parseInt(segmentRegister) + Integer.parseInt(index);
+        List<String> expectedAsList = List.of(
+                popToD(),
+                "@" + address,
+                "M=D"
+        );
+        String expected = String.join(System.lineSeparator(), expectedAsList);
+        assertEquals(expected, ASMMacro.popStatic(index));
+    }
     private String pushFromD() {
         List<String> result = List.of(
                 "@SP",
