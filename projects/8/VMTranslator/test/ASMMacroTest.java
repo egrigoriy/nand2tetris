@@ -278,6 +278,53 @@ public class ASMMacroTest {
         assertEquals(expected, ASMMacro.or());
     }
 
+    @Test
+    public void testPushPointer0() {
+        String segmentRegister = "3";
+        List<String> expectedAsList = List.of(
+                "@" + segmentRegister,
+                "D=M",
+                pushFromD()
+        );
+        String expected = String.join(System.lineSeparator(), expectedAsList);
+        assertEquals(expected, ASMMacro.pushThis());
+    }
+
+    @Test
+    public void testPushPointer1() {
+        String segmentRegister = "4";
+        List<String> expectedAsList = List.of(
+                "@" + segmentRegister,
+                "D=M",
+                pushFromD()
+        );
+        String expected = String.join(System.lineSeparator(), expectedAsList);
+        assertEquals(expected, ASMMacro.pushThat());
+    }
+    @Test
+    public void testPopPointer0() {
+        String segmentRegister = "3";
+        List<String> expectedAsList = List.of(
+                popToD(),
+                "@" + segmentRegister,
+                "M=D"
+        );
+        String expected = String.join(System.lineSeparator(), expectedAsList);
+        assertEquals(expected, ASMMacro.popThis());
+    }
+
+    @Test
+    public void testPopPointer1() {
+        String segmentRegister = "4";
+        List<String> expectedAsList = List.of(
+                popToD(),
+                "@" + segmentRegister,
+                "M=D"
+        );
+        String expected = String.join(System.lineSeparator(), expectedAsList);
+        assertEquals(expected, ASMMacro.popThat());
+    }
+
     private String pushFromD() {
         List<String> result = List.of(
                 "@SP",

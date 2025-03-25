@@ -8,6 +8,7 @@ public class VMParser {
     public static final int THIS = 3;
     public static final int THAT = 4;
     public static final int temp = 5;
+
     public static List<String> parse(List<String> lines) {
         return lines.stream().map(VMParser::parse).collect(Collectors.toList());
     }
@@ -15,18 +16,29 @@ public class VMParser {
     private static String parse(String line) {
         String[] vmCommand = line.split(" ");
         String operation = vmCommand[0];
-            switch (operation) {
-                case "push": return handlePush(vmCommand);
-                case "pop": return handlePop(vmCommand);
-                case "add": return handleAdd();
-                case "sub": return handleSub();
-                case "neg": return handleNeg();
-                case "not": return handleNot();
-                case "or": return handleOr();
-                case "and": return handleAnd();
-                case "eq": return handleEq();
-                case "gt": return handleGt();
-                case "lt": return handleLt();
+        switch (operation) {
+            case "push":
+                return handlePush(vmCommand);
+            case "pop":
+                return handlePop(vmCommand);
+            case "add":
+                return handleAdd();
+            case "sub":
+                return handleSub();
+            case "neg":
+                return handleNeg();
+            case "not":
+                return handleNot();
+            case "or":
+                return handleOr();
+            case "and":
+                return handleAnd();
+            case "eq":
+                return handleEq();
+            case "gt":
+                return handleGt();
+            case "lt":
+                return handleLt();
         }
         return null;
     }
@@ -68,25 +80,35 @@ public class VMParser {
     }
 
     private static String handlePop(String[] command) {
-       String segment = command[1];
-       String index = command[2];
-       if (segment.equals("temp")) {
-           return ASMMacro.popTemp(index);
-       }
-       return ASMMacro.popMemory(segment, index);
+        String segment = command[1];
+        String index = command[2];
+        if (segment.equals("temp")) {
+            return ASMMacro.popTemp(index);
+        }
+        if (segment.equals("pointer") && index.equals("0")) {
+            return ASMMacro.popThis();
+        }
+        if (segment.equals("pointer") && index.equals("1")) {
+            return ASMMacro.popThat();
+        }
+        return ASMMacro.popMemory(segment, index);
     }
 
     private static String handlePush(String[] command) {
         String segment = command[1];
+        String index = command[2];
         if (segment.equals("constant")) {
-            String value = command[2];
-            return ASMMacro.pushValue(value);
+            return ASMMacro.pushValue(index);
         }
         if (segment.equals("temp")) {
-            String index = command[2];
             return ASMMacro.pushTemp(index);
         }
-        String index = command[2];
+        if (segment.equals("pointer") && index.equals("0")) {
+            return ASMMacro.pushThis();
+        }
+        if (segment.equals("pointer") && index.equals("1")) {
+            return ASMMacro.pushThat();
+        }
         return ASMMacro.pushPointedMemory(segment, index);
     }
 }

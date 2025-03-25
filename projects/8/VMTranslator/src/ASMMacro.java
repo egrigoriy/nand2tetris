@@ -157,7 +157,7 @@ public class ASMMacro {
         return String.join(System.lineSeparator(), result);
     }
 
-    public static String increment(String register) {
+    private static String increment(String register) {
         List<String> result = List.of(
                 "@" + register,
                 "M=M+1"
@@ -165,7 +165,7 @@ public class ASMMacro {
         return String.join(System.lineSeparator(), result);
     }
 
-    public static String decrement(String register) {
+    private static String decrement(String register) {
         List<String> result = List.of(
                 "@" + register,
                 "M=M-1"
@@ -276,6 +276,38 @@ public class ASMMacro {
                 "(" + labelTRUE + ")",
                 "D=-1",
                 "(" + labelEND + ")"
+        );
+        return String.join(System.lineSeparator(), result);
+    }
+
+    public static String pushThis() {
+        List<String> result = List.of(
+                loadAddressToD(map.get("this")),
+                pushD()
+        );
+        return String.join(System.lineSeparator(), result);
+    }
+
+    public static String pushThat() {
+        List<String> result = List.of(
+                loadAddressToD(map.get("that")),
+                pushD()
+        );
+        return String.join(System.lineSeparator(), result);
+    }
+
+    public static String popThis() {
+        List<String> result = List.of(
+                popD(),
+                storeDToAddress(map.get("this"))
+        );
+        return String.join(System.lineSeparator(), result);
+    }
+
+    public static String popThat() {
+        List<String> result = List.of(
+                popD(),
+                storeDToAddress(map.get("that"))
         );
         return String.join(System.lineSeparator(), result);
     }
