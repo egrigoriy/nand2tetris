@@ -336,8 +336,11 @@ public class ASMMacro {
     }
 
     public static String asmgoto(String labelName) {
-        return "@" + labelName
-                + "0;JMP";
+        List<String> result = List.of(
+                "@" + labelName,
+                "0; JMP"
+        );
+        return String.join(System.lineSeparator(), result);
     }
 
     /**
