@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -56,6 +57,7 @@ public class ASMMacro {
         );
         return String.join(System.lineSeparator(), result);
     }
+
     public static String loadValueToD(String value) {
         List<String> result = List.of(
                 "@" + value,
@@ -140,7 +142,7 @@ public class ASMMacro {
         return String.join(System.lineSeparator(), result);
     }
 
-    public static String popMemory(String register, String index) {
+    public static String popToMemory(String register, String index) {
         List<String> result = List.of(
                 calculateAbsAddressToR13(map.get(register), index),
                 popToD(),
@@ -264,10 +266,11 @@ public class ASMMacro {
         );
         return String.join(System.lineSeparator(), result);
     }
+
     private static String putToDTrueFalseIf(String condition) {
         int random = new Random().nextInt((int) (Math.pow(2, 16) + 1));
-        String labelTRUE = "TRUE" + random;
-        String labelEND = "END" + random;
+        String labelTRUE = "TRUE$" + random;
+        String labelEND = "END$" + random;
         List<String> result = List.of(
                 "@" + labelTRUE,
                 "D;J" + condition.toUpperCase(),
@@ -345,6 +348,7 @@ public class ASMMacro {
 
     /**
      * True = 1111111 => if contains True then !D must be 00000.
+     *
      * @param labelName
      * @return
      */
@@ -355,5 +359,77 @@ public class ASMMacro {
                 "D;JNE"
         );
         return String.join(System.lineSeparator(), result);
+    }
+
+    public static String function(String functionName, String nVars) {
+        List<String> result = List.of(
+                "(" + functionName + ")",
+                // LCL = SP
+                loadAddressToD("SP"),
+                storeDToAddress(map.get("local")),
+                // initialize locals
+                initLCLSegment(nVars)
+        );
+        return String.join(System.lineSeparator(), result);
+    }
+
+    private static String initLCLSegment(String nVars) {
+        int n = Integer.parseInt(nVars);
+        List<String> result = new ArrayList<>();
+        for (int i = 0; i < n; i++) {
+            result.add(pushValue("0"));
+            result.add(increment("SP"));
+        }
+        return String.join(System.lineSeparator(), result);
+    }
+
+    /**
+     * Use R14 as pointer to caller frame
+     *
+     * @return
+     */
+    public static String asmreturn() {
+        List<String> result = List.of(
+                // set returned value
+                popToMemory("argument", "0"),
+                // reposition SP just after the address of returned value
+                moveFromAddressToAddress(map.get("argument"), "SP"),
+                increment("SP"),
+                // store caller end frame address to R14
+                moveFromAddressToAddress(map.get("local"), "R14"),
+                decrement("R14"),
+                // restore THAT
+                loadToDAddressPointedBy("R14"),
+                storeDToAddress(map.get("that")),
+                decrement("R14"),
+                // restore THIS
+                loadToDAddressPointedBy("R14"),
+                storeDToAddress(map.get("this")),
+                decrement("R14"),
+                // restore ARGS
+                loadToDAddressPointedBy("R14"),
+                storeDToAddress(map.get("argument")),
+                decrement("R14"),
+                // restore LCL
+                loadToDAddressPointedBy("R14"),
+                storeDToAddress(map.get("local")),
+                decrement("R14"),
+                loadAddressToD("R14"),
+                "A=D",
+                "0;JMP"
+        );
+        return String.join(System.lineSeparator(), result);
+    }
+
+    public static String moveFromAddressToAddress(String fromAddress, String toAddress) {
+        List<String> result = List.of(
+                loadAddressToD(fromAddress),
+                storeDToAddress(toAddress)
+                );
+        return String.join(System.lineSeparator(), result);
+    }
+
+    public static String call(String functionName, String nArgs) {
+        return "";
     }
 }

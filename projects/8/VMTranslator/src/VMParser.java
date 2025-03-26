@@ -45,8 +45,30 @@ public class VMParser {
                 return handleGoto(vmCommand);
             case "if-goto":
                 return handleIfGoto(vmCommand);
+            case "function":
+                return handleFunction(vmCommand);
+            case "return":
+                return handleReturn();
+            case "call":
+                return handleCall(vmCommand);
         }
         return null;
+    }
+
+    private static String handleCall(String[] command) {
+        String functionName = command[1];
+        String nArgs = command[2];
+        return ASMMacro.call(functionName, nArgs);
+    }
+
+    private static String handleReturn() {
+        return ASMMacro.asmreturn();
+    }
+
+    private static String handleFunction(String[] command) {
+        String functionName = command[1];
+        String nVars = command[2];
+        return ASMMacro.function(functionName, nVars);
     }
 
     private static String handleIfGoto(String[] command) {
@@ -115,7 +137,7 @@ public class VMParser {
         if (segment.equals("static")) {
             return ASMMacro.popStatic(index);
         }
-        return ASMMacro.popMemory(segment, index);
+        return ASMMacro.popToMemory(segment, index);
     }
 
     private static String handlePush(String[] command) {

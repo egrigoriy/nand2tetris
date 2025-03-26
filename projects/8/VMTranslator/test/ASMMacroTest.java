@@ -118,7 +118,7 @@ public class ASMMacroTest {
                 "M=D"
         );
         String expected = String.join(System.lineSeparator(), expectedAsList);
-        assertEquals(expected, ASMMacro.popMemory(segment, index));
+        assertEquals(expected, ASMMacro.popToMemory(segment, index));
     }
 
     @Test
@@ -142,7 +142,7 @@ public class ASMMacroTest {
                 "M=D"
         );
         String expected = String.join(System.lineSeparator(), expectedAsList);
-        assertEquals(expected, ASMMacro.popMemory(segment, index));
+        assertEquals(expected, ASMMacro.popToMemory(segment, index));
     }
 
     @Test
@@ -166,7 +166,7 @@ public class ASMMacroTest {
                 "M=D"
         );
         String expected = String.join(System.lineSeparator(), expectedAsList);
-        assertEquals(expected, ASMMacro.popMemory(segment, index));
+        assertEquals(expected, ASMMacro.popToMemory(segment, index));
     }
 
     @Test
@@ -190,7 +190,7 @@ public class ASMMacroTest {
                 "M=D"
         );
         String expected = String.join(System.lineSeparator(), expectedAsList);
-        assertEquals(expected, ASMMacro.popMemory(segment, index));
+        assertEquals(expected, ASMMacro.popToMemory(segment, index));
     }
 
     @Test
