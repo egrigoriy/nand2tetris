@@ -16,10 +16,9 @@ public class VMProgram {
         // remove empty lines
         vmCommands = lines.stream()
                 .filter(el -> !el.trim().isEmpty())
-                .collect(Collectors.toList());
-        // remove comments
-        vmCommands = vmCommands.stream()
                 .filter(el -> !el.trim().startsWith("//"))
+                .map(el -> el.contains("/") ? el.substring(0, el.indexOf("/")) : el)
+                .map(String::trim)
                 .collect(Collectors.toList());
         vmCommands = VMParser.parse(vmCommands);
     }

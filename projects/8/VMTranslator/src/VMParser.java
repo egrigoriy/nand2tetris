@@ -39,8 +39,29 @@ public class VMParser {
                 return handleGt();
             case "lt":
                 return handleLt();
+            case "label":
+                return handleLabel(vmCommand);
+            case "goto":
+                return handleGoto(vmCommand);
+            case "if-goto":
+                return handleIfGoto(vmCommand);
         }
         return null;
+    }
+
+    private static String handleIfGoto(String[] command) {
+        String labelName = command[1];
+        return ASMMacro.ifGoto(labelName);
+    }
+
+    private static String handleGoto(String[] command) {
+        String labelName = command[1];
+        return ASMMacro.asmgoto(labelName);
+    }
+
+    private static String handleLabel(String[] command) {
+        String labelName = command[1];
+        return ASMMacro.label(labelName);
     }
 
     private static String handleLt() {

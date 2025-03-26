@@ -330,4 +330,27 @@ public class ASMMacro {
         );
         return String.join(System.lineSeparator(), result);
     }
+
+    public static String label(String labelName) {
+        return "(" + labelName + ")";
+    }
+
+    public static String asmgoto(String labelName) {
+        return "@" + labelName
+                + "0;JMP";
+    }
+
+    /**
+     * True = 1111111 => if contains True then !D must be 00000.
+     * @param labelName
+     * @return
+     */
+    public static String ifGoto(String labelName) {
+        List<String> result = List.of(
+                popToD(),
+                "@" + labelName,
+                "D;JNE"
+        );
+        return String.join(System.lineSeparator(), result);
+    }
 }
