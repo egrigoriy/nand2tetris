@@ -1,8 +1,4 @@
 (SimpleFunction.test)
-@SP
-D=M
-@1
-M=D
 @0
 D=A
 @SP

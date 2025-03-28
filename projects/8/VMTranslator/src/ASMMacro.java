@@ -13,55 +13,13 @@ public class ASMMacro {
             Map.entry("static", "16")
     );
 
-    public static String loadAddressToD(String address) {
-        List<String> result = List.of(
-                "@" + address,
-                "D=M"
-        );
-        return String.join(System.lineSeparator(), result);
-    }
-
-    public static String storeDToAddress(String address) {
-        List<String> result = List.of(
-                "@" + address,
-                "M=D"
-        );
-        return String.join(System.lineSeparator(), result);
-    }
 
     public static String storeSumToR13(String register, String index) {
         List<String> result = List.of(
-                loadAddressToD(register),
+                DRegister.loadAddress(register),
                 "@" + index,
                 "D=D+A",
-                storeDToAddress("R13")
-        );
-        return String.join(System.lineSeparator(), result);
-    }
-
-    public static String loadToDAddressPointedBy(String register) {
-        List<String> result = List.of(
-                "@" + register,
-                "A=M",
-                "D=M"
-        );
-        return String.join(System.lineSeparator(), result);
-    }
-
-
-    public static String storeDToAddressPointedBy(String register) {
-        List<String> result = List.of(
-                "@" + register,
-                "A=M",
-                "M=D"
-        );
-        return String.join(System.lineSeparator(), result);
-    }
-
-    public static String loadValueToD(String value) {
-        List<String> result = List.of(
-                "@" + value,
-                "D=A"
+                DRegister.storeToAddress("R13")
         );
         return String.join(System.lineSeparator(), result);
     }
@@ -76,26 +34,19 @@ public class ASMMacro {
      */
     public static String calculateAbsAddressToR13(String register, String index) {
         List<String> result = List.of(
-                loadAddressToD(register),
+                DRegister.loadAddress(register),
                 "@" + index,
                 "D=D+A",
-                storeDToAddress("R13")
+                DRegister.storeToAddress("R13")
         );
         return String.join(System.lineSeparator(), result);
     }
 
-    private static String pushFromD() {
-        List<String> result = List.of(
-                storeDToAddressPointedBy("SP"),
-                increment("SP")
-        );
-        return String.join(System.lineSeparator(), result);
-    }
 
     public static String pushValue(String value) {
         List<String> result = List.of(
-                loadValueToD(value),
-                pushFromD()
+                DRegister.loadValue(value),
+                DRegister.push()
         );
         return String.join(System.lineSeparator(), result);
     }
@@ -103,8 +54,8 @@ public class ASMMacro {
     public static String pushPointedMemory(String segment, String index) {
         List<String> result = List.of(
                 storeSumToR13(map.get(segment), index),
-                loadToDAddressPointedBy("R13"),
-                pushFromD()
+                DRegister.loadAddressPointedBy("R13"),
+                DRegister.push()
         );
         return String.join(System.lineSeparator(), result);
     }
@@ -112,41 +63,18 @@ public class ASMMacro {
     public static String pushTemp(String index) {
         int address = Integer.parseInt(map.get("temp")) + Integer.parseInt(index);
         List<String> result = List.of(
-                loadAddressToD(String.valueOf(address)),
-                pushFromD()
+                DRegister.loadAddress(String.valueOf(address)),
+                DRegister.push()
         );
         return String.join(System.lineSeparator(), result);
     }
 
-    public static String popToD() {
-        List<String> result = List.of(
-                decrement("SP"),
-                loadToDAddressPointedBy("SP")
-        );
-        return String.join(System.lineSeparator(), result);
-    }
-
-    /**
-     * Pop stack top element to A-register.
-     * IMPORTANT: D-register is not affected!!!!
-     *
-     * @return
-     */
-    public static String popA() {
-        List<String> result = List.of(
-                decrement("SP"),
-                "@SP",
-                "A=M",
-                "A=M"
-        );
-        return String.join(System.lineSeparator(), result);
-    }
 
     public static String popToMemory(String register, String index) {
         List<String> result = List.of(
                 calculateAbsAddressToR13(map.get(register), index),
-                popToD(),
-                storeDToAddressPointedBy("R13")
+                DRegister.pop(),
+                DRegister.storeToAddressPointedBy("R13")
         );
         return String.join(System.lineSeparator(), result);
     }
@@ -154,8 +82,8 @@ public class ASMMacro {
     public static String popTemp(String index) {
         int address = Integer.parseInt(map.get("temp")) + Integer.parseInt(index);
         List<String> result = List.of(
-                popToD(),
-                storeDToAddress(String.valueOf(address))
+                DRegister.pop(),
+                DRegister.storeToAddress(String.valueOf(address))
         );
         return String.join(System.lineSeparator(), result);
     }
@@ -178,140 +106,123 @@ public class ASMMacro {
 
     public static String add() {
         List<String> result = List.of(
-                popToD(),
-                popA(),
+                DRegister.pop(),
+                ARegister.pop(),
                 "D=D+A",
-                pushFromD()
+                DRegister.push()
         );
         return String.join(System.lineSeparator(), result);
     }
 
     public static String sub() {
         List<String> result = List.of(
-                popToD(),
-                popA(),
+                DRegister.pop(),
+                ARegister.pop(),
                 "D=A-D",
-                pushFromD()
+                DRegister.push()
         );
         return String.join(System.lineSeparator(), result);
     }
 
     public static String neg() {
         List<String> result = List.of(
-                popToD(),
+                DRegister.pop(),
                 "D=-D",
-                pushFromD()
+                DRegister.push()
         );
         return String.join(System.lineSeparator(), result);
     }
 
     public static String not() {
         List<String> result = List.of(
-                popToD(),
+                DRegister.pop(),
                 "D=!D",
-                pushFromD()
+                DRegister.push()
         );
         return String.join(System.lineSeparator(), result);
     }
 
     public static String and() {
         List<String> result = List.of(
-                popToD(),
-                popA(),
+                DRegister.pop(),
+                ARegister.pop(),
                 "D=D&A",
-                pushFromD()
+                DRegister.push()
         );
         return String.join(System.lineSeparator(), result);
     }
 
     public static String or() {
         List<String> result = List.of(
-                popToD(),
-                popA(),
+                DRegister.pop(),
+                ARegister.pop(),
                 "D=D|A",
-                pushFromD()
+                DRegister.push()
         );
         return String.join(System.lineSeparator(), result);
     }
 
     public static String lt() {
         List<String> result = List.of(
-                popToD(),
-                popA(),
+                DRegister.pop(),
+                ARegister.pop(),
                 "D=A-D",
-                putToDTrueFalseIf("LT"),
-                pushFromD()
+                DRegister.setTrueFalseIf("LT"),
+                DRegister.push()
         );
         return String.join(System.lineSeparator(), result);
     }
 
     public static String gt() {
         List<String> result = List.of(
-                popToD(),
-                popA(),
+                DRegister.pop(),
+                ARegister.pop(),
                 "D=A-D",
-                putToDTrueFalseIf("GT"),
-                pushFromD()
+                DRegister.setTrueFalseIf("GT"),
+                DRegister.push()
         );
         return String.join(System.lineSeparator(), result);
     }
 
     public static String eq() {
         List<String> result = List.of(
-                popToD(),
-                popA(),
+                DRegister.pop(),
+                ARegister.pop(),
                 "D=A-D",
-                putToDTrueFalseIf("EQ"),
-                pushFromD()
-        );
-        return String.join(System.lineSeparator(), result);
-    }
-
-    private static String putToDTrueFalseIf(String condition) {
-        int random = new Random().nextInt((int) (Math.pow(2, 16) + 1));
-        String labelTRUE = "TRUE$" + random;
-        String labelEND = "END$" + random;
-        List<String> result = List.of(
-                "@" + labelTRUE,
-                "D;J" + condition.toUpperCase(),
-                "D=0",
-                "@" + labelEND,
-                "0;JMP",
-                "(" + labelTRUE + ")",
-                "D=-1",
-                "(" + labelEND + ")"
+                DRegister.setTrueFalseIf("EQ"),
+                DRegister.push()
         );
         return String.join(System.lineSeparator(), result);
     }
 
     public static String pushThis() {
         List<String> result = List.of(
-                loadAddressToD(map.get("this")),
-                pushFromD()
+               DRegister.loadAddress(map.get("this")),
+                DRegister.push()
         );
         return String.join(System.lineSeparator(), result);
     }
 
     public static String pushThat() {
         List<String> result = List.of(
-                loadAddressToD(map.get("that")),
-                pushFromD()
+                DRegister.loadAddress(map.get("that")),
+                DRegister.push()
         );
         return String.join(System.lineSeparator(), result);
     }
 
     public static String popThis() {
         List<String> result = List.of(
-                popToD(),
-                storeDToAddress(map.get("this"))
+                DRegister.pop(),
+                DRegister.storeToAddress(map.get("this"))
         );
         return String.join(System.lineSeparator(), result);
     }
 
     public static String popThat() {
         List<String> result = List.of(
-                popToD(),
-                storeDToAddress(map.get("that"))
+                DRegister.pop(),
+                DRegister.storeToAddress(map.get("that"))
         );
         return String.join(System.lineSeparator(), result);
     }
@@ -319,8 +230,8 @@ public class ASMMacro {
     public static String popStatic(String index) {
         int address = Integer.parseInt(map.get("static")) + Integer.parseInt(index);
         List<String> result = List.of(
-                popToD(),
-                storeDToAddress(String.valueOf(address))
+                DRegister.pop(),
+                DRegister.storeToAddress(String.valueOf(address))
         );
         return String.join(System.lineSeparator(), result);
     }
@@ -328,8 +239,8 @@ public class ASMMacro {
     public static String pushStatic(String index) {
         int address = Integer.parseInt(map.get("static")) + Integer.parseInt(index);
         List<String> result = List.of(
-                loadAddressToD(String.valueOf(address)),
-                pushFromD()
+                DRegister.loadAddress(String.valueOf(address)),
+                DRegister.push()
         );
         return String.join(System.lineSeparator(), result);
     }
@@ -354,7 +265,7 @@ public class ASMMacro {
      */
     public static String ifGoto(String labelName) {
         List<String> result = List.of(
-                popToD(),
+                DRegister.pop(),
                 "@" + labelName,
                 "D;JNE"
         );
@@ -364,9 +275,6 @@ public class ASMMacro {
     public static String function(String functionName, String nVars) {
         List<String> result = List.of(
                 "(" + functionName + ")",
-                // LCL = SP
-                loadAddressToD("SP"),
-                storeDToAddress(map.get("local")),
                 // initialize locals
                 initLCLSegment(nVars)
         );
@@ -378,7 +286,7 @@ public class ASMMacro {
         List<String> result = new ArrayList<>();
         for (int i = 0; i < n; i++) {
             result.add(pushValue("0"));
-            result.add(increment("SP"));
+            result.add(StackPointer.inc());
         }
         return String.join(System.lineSeparator(), result);
     }
@@ -399,22 +307,22 @@ public class ASMMacro {
                 moveFromAddressToAddress(map.get("local"), "R14"),
                 decrement("R14"),
                 // restore THAT
-                loadToDAddressPointedBy("R14"),
-                storeDToAddress(map.get("that")),
+                DRegister.loadAddressPointedBy("R14"),
+                DRegister.storeToAddress(map.get("that")),
                 decrement("R14"),
                 // restore THIS
-                loadToDAddressPointedBy("R14"),
-                storeDToAddress(map.get("this")),
+                DRegister.loadAddressPointedBy("R14"),
+                DRegister.storeToAddress(map.get("this")),
                 decrement("R14"),
                 // restore ARGS
-                loadToDAddressPointedBy("R14"),
-                storeDToAddress(map.get("argument")),
+                DRegister.loadAddressPointedBy("R14"),
+                DRegister.storeToAddress(map.get("argument")),
                 decrement("R14"),
                 // restore LCL
-                loadToDAddressPointedBy("R14"),
-                storeDToAddress(map.get("local")),
+                DRegister.loadAddressPointedBy("R14"),
+                DRegister.storeToAddress(map.get("local")),
                 decrement("R14"),
-                loadAddressToD("R14"),
+                DRegister.loadAddress("R14"),
                 "A=D",
                 "0;JMP"
         );
@@ -423,13 +331,40 @@ public class ASMMacro {
 
     public static String moveFromAddressToAddress(String fromAddress, String toAddress) {
         List<String> result = List.of(
-                loadAddressToD(fromAddress),
-                storeDToAddress(toAddress)
-                );
+                DRegister.loadAddress(fromAddress),
+                DRegister.storeToAddress(toAddress)
+        );
         return String.join(System.lineSeparator(), result);
     }
 
     public static String call(String functionName, String nArgs) {
-        return "";
+        int random = new Random().nextInt((int) (Math.pow(2, 16) + 1));
+        String retAddressLabel = "retAddressLabel$" + random;
+        List<String> result = List.of(
+                // push retAddressLabel
+                pushValue(retAddressLabel),
+                // push LCL
+                DRegister.loadAddress(map.get("local")),
+                DRegister.push(),
+                // push ARG
+                DRegister.loadAddress(map.get("argument")),
+                DRegister.push(),
+                // push THIS
+                pushThis(),
+                // push THAT
+                pushThat(),
+                // reposition for callee ARG = SP – 5 – nArgs
+                DRegister.loadAddress("SP"),
+                "@" + "5",
+                "D=D-A",
+                "@" + nArgs,
+                "D=D-A",
+                DRegister.storeToAddress(map.get("argument")),
+                // reposition for callee LCL = SP
+                moveFromAddressToAddress("SP", map.get("local")),
+                // inject return address label
+                "(" + retAddressLabel + ")"
+        );
+        return String.join(System.lineSeparator(), result);
     }
 }

@@ -10,7 +10,9 @@ public class VMParser {
     public static final int temp = 5;
 
     public static List<String> parse(List<String> lines) {
-        return lines.stream().map(VMParser::parse).collect(Collectors.toList());
+        return lines.stream()
+                .map(VMParser::parse)
+                .collect(Collectors.toList());
     }
 
     private static String parse(String line) {
