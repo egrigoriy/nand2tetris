@@ -1,17 +1,14 @@
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class VMParser {
-    public static final int SP = 0;
-    public static final int LCL = 1;
-    public static final int ARG = 2;
-    public static final int THIS = 3;
-    public static final int THAT = 4;
-    public static final int temp = 5;
-
     public static List<String> parse(List<String> lines) {
         return lines.stream()
-                .map(VMParser::parse)
+                .map((line) -> {
+                    String comment = "// " + line + System.lineSeparator();
+                    return comment + parse(line);
+                })
                 .collect(Collectors.toList());
     }
 
@@ -57,109 +54,117 @@ public class VMParser {
         return null;
     }
 
-    private static String handleCall(String[] command) {
-        String functionName = command[1];
-        String nArgs = command[2];
-        return ASMMacro.call(functionName, nArgs);
-    }
-
-    private static String handleReturn() {
-        return ASMMacro.asmreturn();
-    }
-
-    private static String handleFunction(String[] command) {
-        String functionName = command[1];
-        String nVars = command[2];
-        return ASMMacro.function(functionName, nVars);
-    }
-
-    private static String handleIfGoto(String[] command) {
-        String labelName = command[1];
-        return ASMMacro.ifGoto(labelName);
-    }
-
-    private static String handleGoto(String[] command) {
-        String labelName = command[1];
-        return ASMMacro.asmgoto(labelName);
-    }
-
-    private static String handleLabel(String[] command) {
-        String labelName = command[1];
-        return ASMMacro.label(labelName);
-    }
-
-    private static String handleLt() {
-        return ASMMacro.lt();
-    }
-
-    private static String handleGt() {
-        return ASMMacro.gt();
-    }
-
-    private static String handleEq() {
-        return ASMMacro.eq();
-    }
-
-    private static String handleAnd() {
-        return ASMMacro.and();
-    }
-
-    private static String handleOr() {
-        return ASMMacro.or();
-    }
-
-    private static String handleNot() {
-        return ASMMacro.not();
-    }
-
-    private static String handleNeg() {
-        return ASMMacro.neg();
-    }
-
-    private static String handleSub() {
-        return ASMMacro.sub();
-    }
-
-    private static String handleAdd() {
-        return ASMMacro.add();
+    private static String handlePush(String[] command) {
+        String segment = command[1];
+        String index = command[2];
+        switch (segment) {
+            case "constant":
+                return ASMWriter.pushValue(index);
+            case "local":
+                return ASMWriter.pushLocal(index);
+            case "argument":
+                return ASMWriter.pushArgument(index);
+            case "this":
+                return ASMWriter.pushThis(index);
+            case "that":
+                return ASMWriter.pushThat(index);
+            case "static":
+                return ASMWriter.pushStatic(index);
+            case "temp":
+                return ASMWriter.pushTemp(index);
+            case "pointer":
+                return ASMWriter.pushPointer(index);
+        }
+        return null;
     }
 
     private static String handlePop(String[] command) {
         String segment = command[1];
         String index = command[2];
-        if (segment.equals("temp")) {
-            return ASMMacro.popTemp(index);
+        switch (segment) {
+            case "local":
+                return ASMWriter.popLocal(index);
+            case "argument":
+                return ASMWriter.popArgument(index);
+            case "this":
+                return ASMWriter.popThis(index);
+            case "that":
+                return ASMWriter.popThat(index);
+            case "static":
+                return ASMWriter.popStatic(index);
+            case "temp":
+                return ASMWriter.popTemp(index);
+            case "pointer":
+                return ASMWriter.popPointer(index);
         }
-        if (segment.equals("pointer") && index.equals("0")) {
-            return ASMMacro.popThis();
-        }
-        if (segment.equals("pointer") && index.equals("1")) {
-            return ASMMacro.popThat();
-        }
-        if (segment.equals("static")) {
-            return ASMMacro.popStatic(index);
-        }
-        return ASMMacro.popToMemory(segment, index);
+        return null;
+    }
+    private static String handleAdd() {
+        return ASMWriter.add();
     }
 
-    private static String handlePush(String[] command) {
-        String segment = command[1];
-        String index = command[2];
-        if (segment.equals("constant")) {
-            return ASMMacro.pushValue(index);
-        }
-        if (segment.equals("temp")) {
-            return ASMMacro.pushTemp(index);
-        }
-        if (segment.equals("pointer") && index.equals("0")) {
-            return ASMMacro.pushThis();
-        }
-        if (segment.equals("pointer") && index.equals("1")) {
-            return ASMMacro.pushThat();
-        }
-        if (segment.equals("static")) {
-            return ASMMacro.pushStatic(index);
-        }
-        return ASMMacro.pushPointedMemory(segment, index);
+    private static String handleSub() {
+        return ASMWriter.sub();
     }
+
+    private static String handleLt() {
+        return ASMWriter.lt();
+    }
+
+    private static String handleGt() {
+        return ASMWriter.gt();
+    }
+    private static String handleEq() {
+        return ASMWriter.eq();
+    }
+
+
+    private static String handleAnd() {
+        return ASMWriter.and();
+    }
+
+    private static String handleOr() {
+        return ASMWriter.or();
+    }
+
+    private static String handleNot() {
+        return ASMWriter.not();
+    }
+
+    private static String handleNeg() {
+        return ASMWriter.neg();
+    }
+
+    private static String handleCall(String[] command) {
+        String functionName = command[1];
+        String nArgs = command[2];
+        return ASMWriter.call(functionName, nArgs);
+    }
+
+    private static String handleReturn() {
+        return ASMWriter.ret();
+    }
+
+    private static String handleFunction(String[] command) {
+        String functionName = command[1];
+        String nVars = command[2];
+        return ASMWriter.function(functionName, nVars);
+    }
+
+    private static String handleIfGoto(String[] command) {
+        String labelName = command[1];
+        return ASMWriter.ifGoto(labelName);
+    }
+
+    private static String handleGoto(String[] command) {
+        String labelName = command[1];
+        return ASMWriter.goTo(labelName);
+    }
+
+    private static String handleLabel(String[] command) {
+        String labelName = command[1];
+        return ASMWriter.label(labelName);
+    }
+
+
 }

@@ -88,8 +88,7 @@ public class VMTranslator {
      * @return program translated to binary format
      */
     private static List<String> translateToAssembly(List<String> lines) {
-        VMProgram vmProgram = new VMProgram(lines);
-        return vmProgram.toASM();
+        return VMProgram.toASM(lines);
     }
 
     /**

@@ -5,7 +5,7 @@ import java.util.List;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 
-public class ASMMacroTest {
+public class ASMWriterTest {
     @Test
     public void testPushValue() {
         String value = "99";
@@ -18,7 +18,7 @@ public class ASMMacroTest {
                 incSP()
         );
         String expected = String.join(System.lineSeparator(), expectedAsList);
-        assertEquals(expected, ASMMacro.pushValue(value));
+        assertEquals(expected, ASMWriter.pushValue(value));
     }
 
     @Test
@@ -33,7 +33,7 @@ public class ASMMacroTest {
         );
 
         String expected = String.join(System.lineSeparator(), expectedAsList);
-        assertEquals(expected, ASMMacro.pushPointedMemory(segment, index));
+        assertEquals(expected, ASMWriter.pushLocal(index));
     }
 
     @Test
@@ -47,7 +47,7 @@ public class ASMMacroTest {
                 pushFromD()
         );
         String expected = String.join(System.lineSeparator(), expectedAsList);
-        assertEquals(expected, ASMMacro.pushPointedMemory(segment, index));
+        assertEquals(expected, ASMWriter.pushArgument(index));
     }
 
     @Test
@@ -61,13 +61,12 @@ public class ASMMacroTest {
                 pushFromD()
         );
         String expected = String.join(System.lineSeparator(), expectedAsList);
-        assertEquals(expected, ASMMacro.pushPointedMemory(segment, index));
+        assertEquals(expected, ASMWriter.pushThis(index));
     }
 
     @Test
     public void testPushThat() {
         String index = "44";
-        String segment = "that";
         String segmentRegister = "4";
         List<String> expectedAsList = List.of(
                 storeSumToR13(segmentRegister, index),
@@ -75,7 +74,7 @@ public class ASMMacroTest {
                 pushFromD()
         );
         String expected = String.join(System.lineSeparator(), expectedAsList);
-        assertEquals(expected, ASMMacro.pushPointedMemory(segment, index));
+        assertEquals(expected, ASMWriter.pushThat(index));
     }
 
     @Test
@@ -93,7 +92,7 @@ public class ASMMacroTest {
                 incSP()
         );
         String expected = String.join(System.lineSeparator(), expectedAsList);
-        assertEquals(expected, ASMMacro.pushTemp(index));
+        assertEquals(expected, ASMWriter.pushTemp(index));
     }
 
 
@@ -118,7 +117,7 @@ public class ASMMacroTest {
                 "M=D"
         );
         String expected = String.join(System.lineSeparator(), expectedAsList);
-        assertEquals(expected, ASMMacro.popToMemory(segment, index));
+        assertEquals(expected, ASMWriter.popLocal(index));
     }
 
     @Test
@@ -142,7 +141,7 @@ public class ASMMacroTest {
                 "M=D"
         );
         String expected = String.join(System.lineSeparator(), expectedAsList);
-        assertEquals(expected, ASMMacro.popToMemory(segment, index));
+        assertEquals(expected, ASMWriter.popArgument(index));
     }
 
     @Test
@@ -166,7 +165,7 @@ public class ASMMacroTest {
                 "M=D"
         );
         String expected = String.join(System.lineSeparator(), expectedAsList);
-        assertEquals(expected, ASMMacro.popToMemory(segment, index));
+        assertEquals(expected, ASMWriter.popThis(index));
     }
 
     @Test
@@ -190,7 +189,7 @@ public class ASMMacroTest {
                 "M=D"
         );
         String expected = String.join(System.lineSeparator(), expectedAsList);
-        assertEquals(expected, ASMMacro.popToMemory(segment, index));
+        assertEquals(expected, ASMWriter.popThat(index));
     }
 
     @Test
@@ -205,7 +204,7 @@ public class ASMMacroTest {
                 "M=D"
         );
         String expected = String.join(System.lineSeparator(), expectedAsList);
-        assertEquals(expected, ASMMacro.popTemp(index));
+        assertEquals(expected, ASMWriter.popTemp(index));
     }
 
     @Test
@@ -217,7 +216,7 @@ public class ASMMacroTest {
                 pushFromD()
         );
         String expected = String.join(System.lineSeparator(), expectedAsList);
-        assertEquals(expected, ASMMacro.add());
+        assertEquals(expected, ASMWriter.add());
     }
 
     @Test
@@ -225,11 +224,12 @@ public class ASMMacroTest {
         List<String> expectedAsList = List.of(
                 popToD(),
                 popToA(),
-                "D=A-D",
+                "D=D-A",
+                "D=-D",
                 pushFromD()
         );
         String expected = String.join(System.lineSeparator(), expectedAsList);
-        assertEquals(expected, ASMMacro.sub());
+        assertEquals(expected, ASMWriter.sub());
     }
 
     @Test
@@ -240,7 +240,7 @@ public class ASMMacroTest {
                 pushFromD()
         );
         String expected = String.join(System.lineSeparator(), expectedAsList);
-        assertEquals(expected, ASMMacro.neg());
+        assertEquals(expected, ASMWriter.neg());
     }
 
     @Test
@@ -251,7 +251,7 @@ public class ASMMacroTest {
                 pushFromD()
         );
         String expected = String.join(System.lineSeparator(), expectedAsList);
-        assertEquals(expected, ASMMacro.not());
+        assertEquals(expected, ASMWriter.not());
     }
 
     @Test
@@ -263,7 +263,7 @@ public class ASMMacroTest {
                 pushFromD()
         );
         String expected = String.join(System.lineSeparator(), expectedAsList);
-        assertEquals(expected, ASMMacro.and());
+        assertEquals(expected, ASMWriter.and());
     }
 
     @Test
@@ -275,7 +275,7 @@ public class ASMMacroTest {
                 pushFromD()
         );
         String expected = String.join(System.lineSeparator(), expectedAsList);
-        assertEquals(expected, ASMMacro.or());
+        assertEquals(expected, ASMWriter.or());
     }
 
     @Test
@@ -287,7 +287,7 @@ public class ASMMacroTest {
                 pushFromD()
         );
         String expected = String.join(System.lineSeparator(), expectedAsList);
-        assertEquals(expected, ASMMacro.pushThis());
+        assertEquals(expected, ASMWriter.pushPointer("0"));
     }
 
     @Test
@@ -299,7 +299,7 @@ public class ASMMacroTest {
                 pushFromD()
         );
         String expected = String.join(System.lineSeparator(), expectedAsList);
-        assertEquals(expected, ASMMacro.pushThat());
+        assertEquals(expected, ASMWriter.pushPointer("1"));
     }
     @Test
     public void testPopPointer0() {
@@ -310,7 +310,7 @@ public class ASMMacroTest {
                 "M=D"
         );
         String expected = String.join(System.lineSeparator(), expectedAsList);
-        assertEquals(expected, ASMMacro.popThis());
+        assertEquals(expected, ASMWriter.popPointer("0"));
     }
 
     @Test
@@ -322,7 +322,7 @@ public class ASMMacroTest {
                 "M=D"
         );
         String expected = String.join(System.lineSeparator(), expectedAsList);
-        assertEquals(expected, ASMMacro.popThat());
+        assertEquals(expected, ASMWriter.popPointer("1"));
     }
 
     @Test
@@ -340,12 +340,11 @@ public class ASMMacroTest {
                 incSP()
         );
         String expected = String.join(System.lineSeparator(), expectedAsList);
-        assertEquals(expected, ASMMacro.pushStatic(index));
+        assertEquals(expected, ASMWriter.pushStatic(index));
     }
     @Test
     public void testPopStatic() {
         String index = "6";
-        String segment = "static";
         String segmentRegister = "16";
         int address = Integer.parseInt(segmentRegister) + Integer.parseInt(index);
         List<String> expectedAsList = List.of(
@@ -354,7 +353,7 @@ public class ASMMacroTest {
                 "M=D"
         );
         String expected = String.join(System.lineSeparator(), expectedAsList);
-        assertEquals(expected, ASMMacro.popStatic(index));
+        assertEquals(expected, ASMWriter.popStatic(index));
     }
     private String pushFromD() {
         List<String> result = List.of(

@@ -92,7 +92,8 @@ M=M-1
 @SP
 A=M
 A=M
-D=A-D
+D=D-A
+D=-D
 @SP
 A=M
 M=D
@@ -263,7 +264,8 @@ M=M-1
 @SP
 A=M
 A=M
-D=A-D
+D=D-A
+D=-D
 @SP
 A=M
 M=D
@@ -286,3 +288,6 @@ M=D
 @LOOP
 0; JMP
 (END)
+(END)
+@END
+0;JMP
