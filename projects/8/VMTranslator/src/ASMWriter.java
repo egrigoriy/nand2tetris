@@ -13,12 +13,12 @@ public class ASMWriter {
             Map.entry("static", "16")
     );
 
-    public static String storeSumToR13(String address, String index) {
+    public static String storeSumToAddress(String address, String index, String toAddress) {
         List<String> result = List.of(
                 ASM.loadAddressToD(address),
                 ASM.moveValueToA(index),
                 ASM.addAToD(),
-                ASM.storeDToAddress("R13")
+                ASM.storeDToAddress(toAddress)
         );
         return String.join(System.lineSeparator(), result);
     }
@@ -33,19 +33,21 @@ public class ASMWriter {
     }
 
     public static String pushDereference(String reference, String index) {
+        String pointerAddress = "R13";
         List<String> result = List.of(
-                storeSumToR13(reference, index),
-                ASM.loadDereferenceToD("R13"),
+                storeSumToAddress(reference, index, pointerAddress),
+                ASM.loadDereferenceToD(pointerAddress),
                 ASM.pushD()
         );
         return String.join(System.lineSeparator(), result);
     }
 
     public static String popDereference(String reference, String index) {
+        String pointerAddress = "R13";
         List<String> result = List.of(
-                storeSumToR13(reference, index),
+                storeSumToAddress(reference, index, pointerAddress),
                 ASM.popD(),
-                ASM.storeDToDereference("R13")
+                ASM.storeDToDereference(pointerAddress)
         );
         return String.join(System.lineSeparator(), result);
     }
@@ -228,13 +230,13 @@ public class ASMWriter {
 
 
     public static String label(String labelName) {
-        return "(" + labelName + ")";
+        return ASM.label(labelName);
     }
 
     public static String goTo(String labelName) {
         List<String> result = List.of(
-                "@" + labelName,
-                "0; JMP"
+                ASM.moveValueToA(labelName),
+                ASM.jmp()
         );
         return String.join(System.lineSeparator(), result);
     }
@@ -248,22 +250,26 @@ public class ASMWriter {
     public static String ifGoto(String labelName) {
         List<String> result = List.of(
                 ASM.popD(),
-                "@" + labelName,
-                "D;JNE"
+                ASM.moveValueToA(labelName),
+                ASM.jne()
         );
         return String.join(System.lineSeparator(), result);
     }
 
     public static String function(String functionName, String nVars) {
+        if (nVars.equals("0")) {
+            return label(functionName);
+        }
         List<String> result = List.of(
-                "(" + functionName + ")",
+                // put label for function block
+                label(functionName),
                 // initialize locals
-                initLCLSegment(nVars)
+                initLocalSegment(nVars)
         );
         return String.join(System.lineSeparator(), result);
     }
 
-    private static String initLCLSegment(String nVars) {
+    private static String initLocalSegment(String nVars) {
         int n = Integer.parseInt(nVars);
         List<String> result = new ArrayList<>();
         for (int i = 0; i < n; i++) {
@@ -280,32 +286,33 @@ public class ASMWriter {
     public static String ret() {
         List<String> result = List.of(
                 // set returned value
-                popEffectiveAddress(map.get("argument"), "0"),
-                // reposition SP just after the address of returned value
+                popDereference(map.get("argument"), "0"),
+                // reposition SP just after the address of returned value, i.e. ARG + 1
                 moveFromAddressToAddress(map.get("argument"), "SP"),
                 ASM.increment("SP"),
                 // store caller end frame address to R14
                 moveFromAddressToAddress(map.get("local"), "R14"),
-                ASM.decrement("R14"),
                 // restore THAT
+                ASM.decrement("R14"),
                 ASM.loadDereferenceToD("R14"),
                 ASM.storeDToAddress(map.get("that")),
-                ASM.decrement("R14"),
                 // restore THIS
+                ASM.decrement("R14"),
                 ASM.loadDereferenceToD("R14"),
                 ASM.storeDToAddress(map.get("this")),
-                ASM.decrement("R14"),
                 // restore ARGS
+                ASM.decrement("R14"),
                 ASM.loadDereferenceToD("R14"),
                 ASM.storeDToAddress(map.get("argument")),
-                ASM.decrement("R14"),
                 // restore LCL
+                ASM.decrement("R14"),
                 ASM.loadDereferenceToD("R14"),
                 ASM.storeDToAddress(map.get("local")),
+                // get return address to jump
                 ASM.decrement("R14"),
-                ASM.loadAddressToD("R14"),
-                "A=D",
-                "0;JMP"
+                ASM.loadDereferenceToD("R14"),
+                ASM.moveDToA(),
+                ASM.jmp()
         );
         return String.join(System.lineSeparator(), result);
     }
@@ -318,22 +325,26 @@ public class ASMWriter {
         return String.join(System.lineSeparator(), result);
     }
 
+    /**
+     * Return address label must be unique, cause call can be made from any place
+     * @param functionName
+     * @param nArgs
+     * @return
+     */
     public static String call(String functionName, String nArgs) {
         int random = new Random().nextInt((int) (Math.pow(2, 16) + 1));
-        String retAddressLabel = "retAddressLabel$" + random;
+        String retAddressLabelName = functionName + "$ret." + random;
         List<String> result = List.of(
                 // push retAddressLabel
-                pushValue(retAddressLabel),
+                pushValue(retAddressLabelName),
                 // push LCL
-                ASM.loadAddressToD(map.get("local")),
-                ASM.pushD(),
+                pushAddress(map.get("local")),
                 // push ARG
-                ASM.loadAddressToD(map.get("argument")),
-                ASM.pushD(),
+                pushAddress(map.get("argument")),
                 // push THIS
-                pushLocal("0"),
+                pushAddress(map.get("this")),
                 // push THAT
-                pushLocal("1"),
+                pushAddress(map.get("that")),
                 // reposition for callee ARG = SP – 5 – nArgs
                 ASM.loadAddressToD("SP"),
                 "@" + "5",
@@ -343,8 +354,10 @@ public class ASMWriter {
                 ASM.storeDToAddress(map.get("argument")),
                 // reposition for callee LCL = SP
                 moveFromAddressToAddress("SP", map.get("local")),
+                // transfer control to callee
+                goTo(functionName),
                 // inject return address label
-                "(" + retAddressLabel + ")"
+                label(retAddressLabelName)
         );
         return String.join(System.lineSeparator(), result);
     }

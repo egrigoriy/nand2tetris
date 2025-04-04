@@ -22,11 +22,12 @@ public class VMTranslator {
         }
         if (Files.isDirectory(providedPath)) {
             List<String> allLines = new ArrayList<>();
-            allLines.add("@256");
-            allLines.add("D=A");
-            allLines.add("@0");
-            allLines.add("M=D");
-            allLines.addAll(translateToAssembly(List.of("call Sys.init 0")));
+//            allLines.addAll(translateToAssembly(List.of("call Sys.init 0")));
+//            allLines.add("@256");
+//            allLines.add("D=A");
+//            allLines.add("@0");
+//            allLines.add("M=D");
+//            allLines.addAll(translateToAssembly(List.of("call Sys.init 0")));
             try (Stream<Path> stream = Files.walk(providedPath)) {
                 allLines.addAll(stream
                         .filter(path -> path.getFileName().toString().endsWith(".vm"))

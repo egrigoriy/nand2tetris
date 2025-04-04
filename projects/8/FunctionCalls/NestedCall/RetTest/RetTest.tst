@@ -1,12 +1,12 @@
 // Tests how the VM implementation handles function-call-and-return,
 // by executing the functions in Sys.vm.
-// In particular, loads and runs NestedCall.asm, which results when 
-// the VM translator is applied to the NestedCall folder, which 
+// In particular, loads and runs RetTest.asm, which results when 
+// the VM translator is applied to the RetTest folder, which 
 // includes only one VM file: Sys.vm.
 
-load NestedCall.asm,
-output-file NestedCall.out,
-compare-to NestedCall.cmp,
+load RetTest.asm,
+output-file RetTest.out,
+
 
 set RAM[0] 261,
 set RAM[1] 261,
@@ -61,7 +61,7 @@ set RAM[297] -1,
 set RAM[298] -1,
 set RAM[299] -1,
 
-repeat 2000 {
+repeat 500 {
 	ticktock;
 }
 

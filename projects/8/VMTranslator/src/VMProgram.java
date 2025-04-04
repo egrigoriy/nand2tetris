@@ -6,7 +6,7 @@ public class VMProgram {
     public static List<String> toASM(List<String> lines) {
         List<String> result = new ArrayList<>();
         result.addAll(VMParser.parse(preprocess(lines)));
-        result.addAll(endInfiniteLoop());
+//        result.addAll(endInfiniteLoop());
         return result;
     }
 

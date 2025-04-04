@@ -127,18 +127,28 @@ public class ASM {
 
     public static String setDTrueFalseIf(String condition) {
         int random = new Random().nextInt((int) (Math.pow(2, 16) + 1));
-        String labelTRUE = "TRUE$" + random;
-        String labelEND = "END$" + random;
+        String labelNameTRUE = "TRUE$" + random;
+        String labelNameEND = "END$" + random;
         List<String> result = List.of(
-                "@" + labelTRUE,
+                "@" + labelNameTRUE,
                 "D;J" + condition.toUpperCase(),
                 "D=0",
-                "@" + labelEND,
+                "@" + labelNameEND,
                 "0;JMP",
-                "(" + labelTRUE + ")",
+                label(labelNameTRUE),
                 "D=-1",
-                "(" + labelEND + ")"
+                label(labelNameEND)
         );
         return String.join(System.lineSeparator(), result);
+    }
+    public static String label(String labelName) {
+        return "(" + labelName + ")";
+    }
+
+    public static String jmp() {
+        return "0;JMP";
+    }
+    public static String jne() {
+        return "D;JNE";
     }
 }

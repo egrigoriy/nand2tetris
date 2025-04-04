@@ -1,72 +1,4 @@
-@256
-D=A
-@0
-M=D
-@retAddressLabel$55114
-D=A
-@SP
-A=M
-M=D
-@SP
-M=M+1
-@1
-D=M
-@SP
-A=M
-M=D
-@SP
-M=M+1
-@2
-D=M
-@SP
-A=M
-M=D
-@SP
-M=M+1
-@1
-D=M
-@0
-D=D+A
-@R13
-M=D
-@R13
-A=M
-D=M
-@SP
-A=M
-M=D
-@SP
-M=M+1
-@1
-D=M
-@1
-D=D+A
-@R13
-M=D
-@R13
-A=M
-D=M
-@SP
-A=M
-M=D
-@SP
-M=M+1
-@SP
-D=M
-@5
-D=D-A
-@0
-D=D-A
-@2
-M=D
-@SP
-D=M
-@1
-M=D
-(retAddressLabel$55114)
-(END)
-@END
-0;JMP
+// function SimpleFunction.test 2
 (SimpleFunction.test)
 @0
 D=A
@@ -82,6 +14,7 @@ A=M
 M=D
 @SP
 M=M+1
+// push local 0
 @1
 D=M
 @0
@@ -96,6 +29,7 @@ A=M
 M=D
 @SP
 M=M+1
+// push local 1
 @1
 D=M
 @1
@@ -110,6 +44,7 @@ A=M
 M=D
 @SP
 M=M+1
+// add
 @SP
 M=M-1
 @SP
@@ -126,6 +61,7 @@ A=M
 M=D
 @SP
 M=M+1
+// not
 @SP
 M=M-1
 @SP
@@ -137,6 +73,7 @@ A=M
 M=D
 @SP
 M=M+1
+// push argument 0
 @2
 D=M
 @0
@@ -151,6 +88,7 @@ A=M
 M=D
 @SP
 M=M+1
+// add
 @SP
 M=M-1
 @SP
@@ -167,6 +105,7 @@ A=M
 M=D
 @SP
 M=M+1
+// push argument 1
 @2
 D=M
 @1
@@ -181,6 +120,7 @@ A=M
 M=D
 @SP
 M=M+1
+// sub
 @SP
 M=M-1
 @SP
@@ -198,12 +138,20 @@ A=M
 M=D
 @SP
 M=M+1
+// return
+@2
+D=M
+@0
+D=D+A
+@R13
+M=D
 @SP
 M=M-1
 @SP
 A=M
 D=M
-@2
+@R13
+A=M
 M=D
 @2
 D=M
@@ -248,7 +196,4 @@ M=M-1
 @R14
 D=M
 A=D
-0;JMP
-(END)
-@END
 0;JMP
