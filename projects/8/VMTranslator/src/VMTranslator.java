@@ -22,7 +22,7 @@ public class VMTranslator {
         }
         if (Files.isDirectory(providedPath)) {
             List<String> allLines = new ArrayList<>();
-//            allLines.addAll(translateToAssembly(List.of("call Sys.init 0")));
+            allLines.addAll(translateToAssembly(List.of("call Sys.init 0")));
 //            allLines.add("@256");
 //            allLines.add("D=A");
 //            allLines.add("@0");

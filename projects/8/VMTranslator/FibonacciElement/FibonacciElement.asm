@@ -1,8 +1,5 @@
-@256
-D=A
-@0
-M=D
-@retAddressLabel$5743
+// call Sys.init 0
+@Sys.init$ret.24810
 D=A
 @SP
 A=M
@@ -49,9 +46,12 @@ M=D
 D=M
 @1
 M=D
-(retAddressLabel$5743)
+@Sys.init
+0;JMP
+(Sys.init$ret.24810)
+// function Main.fibonacci 0
 (Main.fibonacci)
-
+// push argument 0
 @2
 D=M
 @0
@@ -66,6 +66,7 @@ A=M
 M=D
 @SP
 M=M+1
+// push constant 2
 @2
 D=A
 @SP
@@ -73,6 +74,7 @@ A=M
 M=D
 @SP
 M=M+1
+// lt
 @SP
 M=M-1
 @SP
@@ -83,20 +85,22 @@ M=M-1
 @SP
 A=M
 A=M
-D=A-D
-@TRUE$25507
+D=D-A
+D=-D
+@TRUE$29759
 D;JLT
 D=0
-@END$25507
+@END$29759
 0;JMP
-(TRUE$25507)
+(TRUE$29759)
 D=-1
-(END$25507)
+(END$29759)
 @SP
 A=M
 M=D
 @SP
 M=M+1
+// if-goto N_LT_2
 @SP
 M=M-1
 @SP
@@ -104,9 +108,12 @@ A=M
 D=M
 @N_LT_2
 D;JNE
+// goto N_GE_2
 @N_GE_2
-0; JMP
+0;JMP
+// label N_LT_2
 (N_LT_2)
+// push argument 0
 @2
 D=M
 @0
@@ -121,65 +128,75 @@ A=M
 M=D
 @SP
 M=M+1
-@2
-D=M
-@0
-D=D+A
-@R13
-M=D
-@SP
-M=M-1
-@SP
-A=M
-D=M
-@R13
-A=M
-M=D
-@2
-D=M
-@SP
-M=D
-@SP
-M=M+1
+// return
 @1
 D=M
+@5
+D=D-A
+@R15
+M=D
+@R15
+A=M
+D=M
+@R15
+M=D
+@2
+D=M
 @R14
 M=D
-@R14
+@SP
 M=M-1
+@SP
+A=M
+D=M
 @R14
+A=M
+M=D
+@1
+D=M
+@SP
+M=D
+@SP
+M=M-1
+@SP
 A=M
 D=M
 @4
 M=D
-@R14
+@SP
 M=M-1
-@R14
+@SP
 A=M
 D=M
 @3
 M=D
-@R14
+@SP
 M=M-1
-@R14
+@SP
 A=M
 D=M
 @2
 M=D
-@R14
+@SP
 M=M-1
-@R14
+@SP
 A=M
 D=M
 @1
 M=D
 @R14
-M=M-1
-@R14
+D=M
+@SP
+M=D
+@SP
+M=M+1
+@R15
 D=M
 A=D
 0;JMP
+// label N_GE_2
 (N_GE_2)
+// push argument 0
 @2
 D=M
 @0
@@ -194,6 +211,7 @@ A=M
 M=D
 @SP
 M=M+1
+// push constant 2
 @2
 D=A
 @SP
@@ -201,6 +219,7 @@ A=M
 M=D
 @SP
 M=M+1
+// sub
 @SP
 M=M-1
 @SP
@@ -211,13 +230,15 @@ M=M-1
 @SP
 A=M
 A=M
-D=A-D
+D=D-A
+D=-D
 @SP
 A=M
 M=D
 @SP
 M=M+1
-@retAddressLabel$37171
+// call Main.fibonacci 1
+@Main.fibonacci$ret.7277
 D=A
 @SP
 A=M
@@ -264,7 +285,10 @@ M=D
 D=M
 @1
 M=D
-(retAddressLabel$37171)
+@Main.fibonacci
+0;JMP
+(Main.fibonacci$ret.7277)
+// push argument 0
 @2
 D=M
 @0
@@ -279,6 +303,7 @@ A=M
 M=D
 @SP
 M=M+1
+// push constant 1
 @1
 D=A
 @SP
@@ -286,6 +311,7 @@ A=M
 M=D
 @SP
 M=M+1
+// sub
 @SP
 M=M-1
 @SP
@@ -296,13 +322,15 @@ M=M-1
 @SP
 A=M
 A=M
-D=A-D
+D=D-A
+D=-D
 @SP
 A=M
 M=D
 @SP
 M=M+1
-@retAddressLabel$59564
+// call Main.fibonacci 1
+@Main.fibonacci$ret.9688
 D=A
 @SP
 A=M
@@ -349,7 +377,10 @@ M=D
 D=M
 @1
 M=D
-(retAddressLabel$59564)
+@Main.fibonacci
+0;JMP
+(Main.fibonacci$ret.9688)
+// add
 @SP
 M=M-1
 @SP
@@ -366,66 +397,75 @@ A=M
 M=D
 @SP
 M=M+1
-@2
-D=M
-@0
-D=D+A
-@R13
-M=D
-@SP
-M=M-1
-@SP
-A=M
-D=M
-@R13
-A=M
-M=D
-@2
-D=M
-@SP
-M=D
-@SP
-M=M+1
+// return
 @1
 D=M
+@5
+D=D-A
+@R15
+M=D
+@R15
+A=M
+D=M
+@R15
+M=D
+@2
+D=M
 @R14
 M=D
-@R14
+@SP
 M=M-1
+@SP
+A=M
+D=M
 @R14
+A=M
+M=D
+@1
+D=M
+@SP
+M=D
+@SP
+M=M-1
+@SP
 A=M
 D=M
 @4
 M=D
-@R14
+@SP
 M=M-1
-@R14
+@SP
 A=M
 D=M
 @3
 M=D
-@R14
+@SP
 M=M-1
-@R14
+@SP
 A=M
 D=M
 @2
 M=D
-@R14
+@SP
 M=M-1
-@R14
+@SP
 A=M
 D=M
 @1
 M=D
 @R14
-M=M-1
-@R14
+D=M
+@SP
+M=D
+@SP
+M=M+1
+@R15
 D=M
 A=D
 0;JMP
+// function Sys.init 0
 (Sys.init)
-
+// push constant 4
 @4
 D=A
 @SP
@@ -433,7 +473,8 @@ A=M
 M=D
 @SP
 M=M+1
-@retAddressLabel$51011
+// call Main.fibonacci 1
+@Main.fibonacci$ret.7125
 D=A
 @SP
 A=M
@@ -480,7 +521,11 @@ M=D
 D=M
 @1
 M=D
-(retAddressLabel$51011)
+@Main.fibonacci
+0;JMP
+(Main.fibonacci$ret.7125)
+// label END
 (END)
+// goto END
 @END
-0; JMP
+0;JMP

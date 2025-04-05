@@ -93,6 +93,7 @@ public class ASMWriter {
     public static String popArgument(String index) {
         return popDereference(map.get("argument"), index);
     }
+
     public static String pushThis(String index) {
         return pushDereference(map.get("this"), index);
     }
@@ -116,6 +117,7 @@ public class ASMWriter {
     public static String popTemp(String index) {
         return popEffectiveAddress(map.get("temp"), index);
     }
+
     public static String popStatic(String index) {
         return popEffectiveAddress(map.get("static"), index);
     }
@@ -285,34 +287,70 @@ public class ASMWriter {
      */
     public static String ret() {
         List<String> result = List.of(
-                // set returned value
-                popDereference(map.get("argument"), "0"),
-                // reposition SP just after the address of returned value, i.e. ARG + 1
-                moveFromAddressToAddress(map.get("argument"), "SP"),
-                ASM.increment("SP"),
-                // store caller end frame address to R14
-                moveFromAddressToAddress(map.get("local"), "R14"),
-                // restore THAT
-                ASM.decrement("R14"),
-                ASM.loadDereferenceToD("R14"),
+                // store LCL - 5 to R15 as retAddress to jump
+                ASM.loadAddressToD(map.get("local")),
+                ASM.moveValueToA("5"),
+                ASM.subAFromD(),
+                ASM.storeDToAddress("R15"),
+                ASM.loadDereferenceToD("R15"),
+                ASM.storeDToAddress("R15"),
+                // store ARG to R14
+                moveFromAddressToAddress(map.get("argument"), "R14"),
+                // pop returnValue to reference from R14
+                ASM.popD(),
+                ASM.storeDToDereference("R14"),
+                // SP = LCL coz need to skip all locals
+                moveFromAddressToAddress(map.get("local"), "SP"),
+                // pop THAT
+                ASM.popD(),
                 ASM.storeDToAddress(map.get("that")),
-                // restore THIS
-                ASM.decrement("R14"),
-                ASM.loadDereferenceToD("R14"),
+                // pop THIS
+                ASM.popD(),
                 ASM.storeDToAddress(map.get("this")),
-                // restore ARGS
-                ASM.decrement("R14"),
-                ASM.loadDereferenceToD("R14"),
+                // pop ARG
+                ASM.popD(),
                 ASM.storeDToAddress(map.get("argument")),
-                // restore LCL
-                ASM.decrement("R14"),
-                ASM.loadDereferenceToD("R14"),
+                // pop LCL
+                ASM.popD(),
                 ASM.storeDToAddress(map.get("local")),
-                // get return address to jump
-                ASM.decrement("R14"),
-                ASM.loadDereferenceToD("R14"),
+                // SP = R14
+                ASM.loadAddressToD("R14"),
+                ASM.storeDToAddress("SP"),
+                // SP++
+                ASM.increment("SP"),
+                // jmp to address in R15
+                ASM.loadAddressToD("R15"),
                 ASM.moveDToA(),
                 ASM.jmp()
+
+//                // set returned value
+//                popDereference(map.get("argument"), "0"),
+//                // reposition SP just after the address of returned value, i.e. ARG + 1
+//                moveFromAddressToAddress(map.get("argument"), "SP"),
+//                ASM.increment("SP"),
+//                // store caller end frame address to R14
+//                moveFromAddressToAddress(map.get("local"), "R14"),
+//                // restore THAT
+//                ASM.decrement("R14"),
+//                ASM.loadDereferenceToD("R14"),
+//                ASM.storeDToAddress(map.get("that")),
+//                // restore THIS
+//                ASM.decrement("R14"),
+//                ASM.loadDereferenceToD("R14"),
+//                ASM.storeDToAddress(map.get("this")),
+//                // restore ARGS
+//                ASM.decrement("R14"),
+//                ASM.loadDereferenceToD("R14"),
+//                ASM.storeDToAddress(map.get("argument")),
+//                // restore LCL
+//                ASM.decrement("R14"),
+//                ASM.loadDereferenceToD("R14"),
+//                ASM.storeDToAddress(map.get("local")),
+//                // get return address to jump
+//                ASM.decrement("R14"),
+//                ASM.loadDereferenceToD("R14"),
+//                ASM.moveDToA(),
+//                ASM.jmp()
         );
         return String.join(System.lineSeparator(), result);
     }
@@ -327,6 +365,7 @@ public class ASMWriter {
 
     /**
      * Return address label must be unique, cause call can be made from any place
+     *
      * @param functionName
      * @param nArgs
      * @return
