@@ -14,7 +14,6 @@ public class ASM {
         return String.join(System.lineSeparator(), result);
     }
 
-
     public static String moveAToD() {
         return "D=A";
     }
@@ -22,9 +21,10 @@ public class ASM {
     public static String moveDToA() {
         return "A=D";
     }
+
     public static String storeDToDereference(String reference) {
         List<String> result = List.of(
-                "@" + reference,
+                moveValueToA(reference),
                 "A=M",
                 "M=D"
         );
@@ -33,7 +33,7 @@ public class ASM {
 
     public static String loadDereferenceToD(String reference) {
         List<String> result = List.of(
-                "@" + reference,
+                moveValueToA(reference),
                 "A=M",
                 "D=M"
         );
@@ -41,23 +41,40 @@ public class ASM {
     }
     public static String loadDereferenceToA(String reference) {
         List<String> result = List.of(
-                "@" + reference,
+                moveValueToA(reference),
                 "A=M",
                 "A=M"
         );
         return String.join(System.lineSeparator(), result);
     }
 
+    public static String storeDToReferencePlusIndex(String reference, String index) {
+        List<String> result = List.of(
+                moveValueToA(reference),
+                "A=M",
+                "M=D"
+        );
+        return String.join(System.lineSeparator(), result);
+    }
+
+    public static String loadReferenceToD(String reference) {
+        List<String> result = List.of(
+                moveValueToA(reference),
+                "A=M",
+                "D=M"
+        );
+        return String.join(System.lineSeparator(), result);
+    }
     public static String loadAddressToD(String address) {
         List<String> result = List.of(
-                "@" + address,
+                moveValueToA(address),
                 "D=M"
         );
         return String.join(System.lineSeparator(), result);
     }
     public static String storeDToAddress(String address) {
         List<String> result = List.of(
-                "@" + address,
+                moveValueToA(address),
                 "M=D"
         );
         return String.join(System.lineSeparator(), result);
@@ -66,14 +83,14 @@ public class ASM {
 
     public static String increment(String address) {
         List<String> result = List.of(
-                "@" + address,
+                moveValueToA(address),
                 "M=M+1"
         );
         return String.join(System.lineSeparator(), result);
     }
     public static String decrement(String address) {
         List<String> result = List.of(
-                "@" + address,
+                moveValueToA(address),
                 "M=M-1"
         );
         return String.join(System.lineSeparator(), result);

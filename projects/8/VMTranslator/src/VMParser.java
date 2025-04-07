@@ -1,18 +1,21 @@
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class VMParser {
-    public static List<String> parse(List<String> lines) {
-        return lines.stream()
+    private static String functionName = "";
+
+    public static List<String> parse(String fileName, List<String> vmLines) {
+        return preprocess(vmLines).stream()
                 .map((line) -> {
                     String comment = "// " + line + System.lineSeparator();
-                    return comment + parse(line);
+                    return comment + parse(fileName, line);
                 })
                 .collect(Collectors.toList());
     }
 
-    private static String parse(String line) {
+    private static String parse(String fileName, String line) {
         String[] vmCommand = line.split(" ");
         String operation = vmCommand[0];
         switch (operation) {
@@ -45,7 +48,7 @@ public class VMParser {
             case "if-goto":
                 return handleIfGoto(vmCommand);
             case "function":
-                return handleFunction(vmCommand);
+                return handleFunction(fileName, vmCommand);
             case "return":
                 return handleReturn();
             case "call":
@@ -99,6 +102,7 @@ public class VMParser {
         }
         return null;
     }
+
     private static String handleAdd() {
         return ASMWriter.add();
     }
@@ -114,6 +118,7 @@ public class VMParser {
     private static String handleGt() {
         return ASMWriter.gt();
     }
+
     private static String handleEq() {
         return ASMWriter.eq();
     }
@@ -145,8 +150,8 @@ public class VMParser {
         return ASMWriter.ret();
     }
 
-    private static String handleFunction(String[] command) {
-        String functionName = command[1];
+    private static String handleFunction(String fileName, String[] command) {
+        functionName = fileName + "." + command[1];
         String nVars = command[2];
         return ASMWriter.function(functionName, nVars);
     }
@@ -157,14 +162,31 @@ public class VMParser {
     }
 
     private static String handleGoto(String[] command) {
-        String labelName = command[1];
+        String labelName = functionName + "$" + command[1];
         return ASMWriter.goTo(labelName);
     }
 
     private static String handleLabel(String[] command) {
-        String labelName = command[1];
+        String labelName = functionName + "$" + command[1];
         return ASMWriter.label(labelName);
     }
 
 
+    private static List<String> preprocess(List<String> lines) {
+        return removeComments(removeEmptyLines(lines));
+    }
+
+    private static List<String> removeEmptyLines(List<String> lines) {
+        return lines.stream()
+                .filter(el -> !el.trim().isEmpty())
+                .collect(Collectors.toList());
+    }
+
+    private static List<String> removeComments(List<String> lines) {
+        return lines.stream()
+                .filter(el -> !el.trim().startsWith("//"))
+                .map(el -> el.contains("/") ? el.substring(0, el.indexOf("/")) : el)
+                .map(String::trim)
+                .collect(Collectors.toList());
+    }
 }

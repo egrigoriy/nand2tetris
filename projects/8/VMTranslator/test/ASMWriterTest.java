@@ -24,10 +24,8 @@ public class ASMWriterTest {
     @Test
     public void testPushLocal() {
         String index = "11";
-        String segment = "local";
-        String segmentRegister = "1";
         List<String> expectedAsList = List.of(
-                storeSumToR13(segmentRegister, index),
+                storeSumToR13("LCL", index),
                 loadToDPointedAddressPointedBy("R13"),
                 pushFromD()
         );
@@ -38,11 +36,9 @@ public class ASMWriterTest {
 
     @Test
     public void testPushArgument() {
-        String index = "22";
-        String segment = "argument";
-        String baseRegister = "2";
+        String index = "3";
         List<String> expectedAsList = List.of(
-                storeSumToR13(baseRegister, index),
+                storeSumToR13("ARG", index),
                 loadToDPointedAddressPointedBy("R13"),
                 pushFromD()
         );
@@ -52,11 +48,9 @@ public class ASMWriterTest {
 
     @Test
     public void testPushThis() {
-        String index = "33";
-        String segment = "this";
-        String segmentRegister = "3";
+        String index = "3";
         List<String> expectedAsList = List.of(
-                storeSumToR13(segmentRegister, index),
+                storeSumToR13("THIS", index),
                 loadToDPointedAddressPointedBy("R13"),
                 pushFromD()
         );
@@ -66,10 +60,9 @@ public class ASMWriterTest {
 
     @Test
     public void testPushThat() {
-        String index = "44";
-        String segmentRegister = "4";
+        String index = "4";
         List<String> expectedAsList = List.of(
-                storeSumToR13(segmentRegister, index),
+                storeSumToR13("THAT", index),
                 loadToDPointedAddressPointedBy("R13"),
                 pushFromD()
         );
@@ -99,10 +92,8 @@ public class ASMWriterTest {
     @Test
     public void testPopLocal() {
         String index = "11";
-        String segment = "local";
-        String segmentRegister = "1";
         List<String> expectedAsList = List.of(
-                "@" + segmentRegister,
+                "@LCL",
                 "D=M",
                 "@" + index,
                 "D=D+A",
@@ -123,10 +114,8 @@ public class ASMWriterTest {
     @Test
     public void testPopArgument() {
         String index = "22";
-        String segment = "argument";
-        String segmentRegister = "2";
         List<String> expectedAsList = List.of(
-                "@" + segmentRegister,
+                "@ARG",
                 "D=M",
                 "@" + index,
                 "D=D+A",
@@ -147,10 +136,8 @@ public class ASMWriterTest {
     @Test
     public void testPopThis() {
         String index = "33";
-        String segment = "this";
-        String segmentRegister = "3";
         List<String> expectedAsList = List.of(
-                "@" + segmentRegister,
+                "@THIS",
                 "D=M",
                 "@" + index,
                 "D=D+A",
@@ -171,10 +158,8 @@ public class ASMWriterTest {
     @Test
     public void testPopThat() {
         String index = "44";
-        String segment = "that";
-        String segmentRegister = "4";
         List<String> expectedAsList = List.of(
-                "@" + segmentRegister,
+                "@THAT",
                 "D=M",
                 "@" + index,
                 "D=D+A",
@@ -280,9 +265,8 @@ public class ASMWriterTest {
 
     @Test
     public void testPushPointer0() {
-        String segmentRegister = "3";
         List<String> expectedAsList = List.of(
-                "@" + segmentRegister,
+                "@THIS",
                 "D=M",
                 pushFromD()
         );
@@ -292,9 +276,8 @@ public class ASMWriterTest {
 
     @Test
     public void testPushPointer1() {
-        String segmentRegister = "4";
         List<String> expectedAsList = List.of(
-                "@" + segmentRegister,
+                "@THAT",
                 "D=M",
                 pushFromD()
         );
@@ -303,10 +286,9 @@ public class ASMWriterTest {
     }
     @Test
     public void testPopPointer0() {
-        String segmentRegister = "3";
         List<String> expectedAsList = List.of(
                 popToD(),
-                "@" + segmentRegister,
+                "@THIS",
                 "M=D"
         );
         String expected = String.join(System.lineSeparator(), expectedAsList);
@@ -315,10 +297,9 @@ public class ASMWriterTest {
 
     @Test
     public void testPopPointer1() {
-        String segmentRegister = "4";
         List<String> expectedAsList = List.of(
                 popToD(),
-                "@" + segmentRegister,
+                "@THAT",
                 "M=D"
         );
         String expected = String.join(System.lineSeparator(), expectedAsList);

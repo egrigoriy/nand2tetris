@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Random;
 
 public class ASMWriter {
+    private static int STATIC_INDEX = 16;
     public static final Map<String, String> map = Map.ofEntries(
             Map.entry("local", "1"),
             Map.entry("argument", "2"),
@@ -12,6 +13,7 @@ public class ASMWriter {
             Map.entry("temp", "5"),
             Map.entry("static", "16")
     );
+    private static int callIndex = 1;
 
     public static String storeSumToAddress(String address, String index, String toAddress) {
         List<String> result = List.of(
@@ -79,35 +81,35 @@ public class ASMWriter {
     }
 
     public static String pushLocal(String index) {
-        return pushDereference(map.get("local"), index);
+        return pushDereference("LCL", index);
     }
 
     public static String popLocal(String index) {
-        return popDereference(map.get("local"), index);
+        return popDereference("LCL", index);
     }
 
     public static String pushArgument(String index) {
-        return pushDereference(map.get("argument"), index);
+        return pushDereference("ARG", index);
     }
 
     public static String popArgument(String index) {
-        return popDereference(map.get("argument"), index);
+        return popDereference("ARG", index);
     }
 
     public static String pushThis(String index) {
-        return pushDereference(map.get("this"), index);
+        return pushDereference("THIS", index);
     }
 
     public static String popThis(String index) {
-        return popDereference(map.get("this"), index);
+        return popDereference("THIS", index);
     }
 
     public static String pushThat(String index) {
-        return pushDereference(map.get("that"), index);
+        return pushDereference("THAT", index);
     }
 
     public static String popThat(String index) {
-        return popDereference(map.get("that"), index);
+        return popDereference("THAT", index);
     }
 
     public static String pushTemp(String index) {
@@ -127,12 +129,12 @@ public class ASMWriter {
     }
 
     public static String pushPointer(String index) {
-        String address = index.equals("0") ? map.get("this") : map.get("that");
+        String address = index.equals("0") ? "THIS" : "THAT";
         return pushAddress(address);
     }
 
     public static String popPointer(String index) {
-        String address = index.equals("0") ? map.get("this") : map.get("that");
+        String address = index.equals("0") ? "THIS" : "THAT";
         return popAddress(address);
     }
 
@@ -288,31 +290,31 @@ public class ASMWriter {
     public static String ret() {
         List<String> result = List.of(
                 // store LCL - 5 to R15 as retAddress to jump
-                ASM.loadAddressToD(map.get("local")),
+                ASM.loadAddressToD("LCL"),
                 ASM.moveValueToA("5"),
                 ASM.subAFromD(),
                 ASM.storeDToAddress("R15"),
                 ASM.loadDereferenceToD("R15"),
                 ASM.storeDToAddress("R15"),
                 // store ARG to R14
-                moveFromAddressToAddress(map.get("argument"), "R14"),
+                moveFromAddressToAddress("ARG", "R14"),
                 // pop returnValue to reference from R14
                 ASM.popD(),
                 ASM.storeDToDereference("R14"),
                 // SP = LCL coz need to skip all locals
-                moveFromAddressToAddress(map.get("local"), "SP"),
+                moveFromAddressToAddress("LCL", "SP"),
                 // pop THAT
                 ASM.popD(),
-                ASM.storeDToAddress(map.get("that")),
+                ASM.storeDToAddress("THAT"),
                 // pop THIS
                 ASM.popD(),
-                ASM.storeDToAddress(map.get("this")),
+                ASM.storeDToAddress("THIS"),
                 // pop ARG
                 ASM.popD(),
-                ASM.storeDToAddress(map.get("argument")),
+                ASM.storeDToAddress("ARG"),
                 // pop LCL
                 ASM.popD(),
-                ASM.storeDToAddress(map.get("local")),
+                ASM.storeDToAddress("LCL"),
                 // SP = R14
                 ASM.loadAddressToD("R14"),
                 ASM.storeDToAddress("SP"),
@@ -371,28 +373,28 @@ public class ASMWriter {
      * @return
      */
     public static String call(String functionName, String nArgs) {
-        int random = new Random().nextInt((int) (Math.pow(2, 16) + 1));
-        String retAddressLabelName = functionName + "$ret." + random;
+        String retAddressLabelName = functionName + "$ret." + callIndex;
+        callIndex++;
         List<String> result = List.of(
                 // push retAddressLabel
                 pushValue(retAddressLabelName),
                 // push LCL
-                pushAddress(map.get("local")),
+                pushAddress("LCL"),
                 // push ARG
-                pushAddress(map.get("argument")),
+                pushAddress("ARG"),
                 // push THIS
-                pushAddress(map.get("this")),
+                pushAddress("THIS"),
                 // push THAT
-                pushAddress(map.get("that")),
+                pushAddress("THAT"),
                 // reposition for callee ARG = SP – 5 – nArgs
                 ASM.loadAddressToD("SP"),
                 "@" + "5",
                 "D=D-A",
                 "@" + nArgs,
                 "D=D-A",
-                ASM.storeDToAddress(map.get("argument")),
+                ASM.storeDToAddress("ARG"),
                 // reposition for callee LCL = SP
-                moveFromAddressToAddress("SP", map.get("local")),
+                moveFromAddressToAddress("SP", "LCL"),
                 // transfer control to callee
                 goTo(functionName),
                 // inject return address label

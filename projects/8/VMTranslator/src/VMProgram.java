@@ -1,12 +1,30 @@
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 
 public class VMProgram {
-    public static List<String> toASM(List<String> lines) {
+    public static List<String> toASM(Map<String, List<String>> vmFiles) {
         List<String> result = new ArrayList<>();
-        result.addAll(VMParser.parse(preprocess(lines)));
-//        result.addAll(endInfiniteLoop());
+        for (String fileName : vmFiles.keySet()) {
+            List<String> vmLines = vmFiles.get(fileName);
+            result.addAll(VMParser.parse(fileName, vmLines));
+        }
+        if (vmFiles.keySet().size() == 1) {
+            result.addAll(endInfiniteLoop());
+        } else {
+            result.addAll(0, bootstrap());
+        }
+        return result;
+    }
+
+    private static List<String> bootstrap() {
+        List<String> result = new ArrayList<>(List.of(
+                "@256",
+                "D=A",
+                "@SP",
+                "M=D"
+        ));
+        result.addAll(VMParser.parse("", List.of("call Sys.init 0")));
         return result;
     }
 
@@ -16,22 +34,5 @@ public class VMProgram {
                 "@END",
                 "0;JMP"
         );
-    }
-
-    private static List<String> preprocess(List<String> lines) {
-        return removeComments(removeEmptyLines(lines));
-    }
-    private static List<String> removeEmptyLines(List<String> lines) {
-        return lines.stream()
-                .filter(el -> !el.trim().isEmpty())
-                .collect(Collectors.toList());
-    }
-
-    private static List<String> removeComments(List<String> lines) {
-        return lines.stream()
-                .filter(el -> !el.trim().startsWith("//"))
-                .map(el -> el.contains("/") ? el.substring(0, el.indexOf("/")) : el)
-                .map(String::trim)
-                .collect(Collectors.toList());
     }
 }
