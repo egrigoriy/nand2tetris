@@ -33,7 +33,7 @@ public class VMTranslator {
         }
         Path inputPath = Path.of(args[0]);
         if (Files.isRegularFile(inputPath)) {
-            if (!inputPath.endsWith(".vm")) {
+            if (!inputPath.getFileName().toString().endsWith(".vm")) {
                 System.out.println("Wrong file extension: Required \"vm\"");
                 System.out.println("Provided path was: " + inputPath);
                 System.out.println("File path must be in the form of \"Path\\to\\xxx.vm\"");

@@ -324,35 +324,6 @@ public class ASMWriter {
                 ASM.loadAddressToD("R15"),
                 ASM.moveDToA(),
                 ASM.jmp()
-
-//                // set returned value
-//                popDereference(map.get("argument"), "0"),
-//                // reposition SP just after the address of returned value, i.e. ARG + 1
-//                moveFromAddressToAddress(map.get("argument"), "SP"),
-//                ASM.increment("SP"),
-//                // store caller end frame address to R14
-//                moveFromAddressToAddress(map.get("local"), "R14"),
-//                // restore THAT
-//                ASM.decrement("R14"),
-//                ASM.loadDereferenceToD("R14"),
-//                ASM.storeDToAddress(map.get("that")),
-//                // restore THIS
-//                ASM.decrement("R14"),
-//                ASM.loadDereferenceToD("R14"),
-//                ASM.storeDToAddress(map.get("this")),
-//                // restore ARGS
-//                ASM.decrement("R14"),
-//                ASM.loadDereferenceToD("R14"),
-//                ASM.storeDToAddress(map.get("argument")),
-//                // restore LCL
-//                ASM.decrement("R14"),
-//                ASM.loadDereferenceToD("R14"),
-//                ASM.storeDToAddress(map.get("local")),
-//                // get return address to jump
-//                ASM.decrement("R14"),
-//                ASM.loadDereferenceToD("R14"),
-//                ASM.moveDToA(),
-//                ASM.jmp()
         );
         return String.join(System.lineSeparator(), result);
     }

@@ -1,21 +1,21 @@
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class VMParser {
-    private static String functionName = "";
+    private static String functionName = "defaultFunction";
+    private static String currentfileName = "defaultFileName";
 
     public static List<String> parse(String fileName, List<String> vmLines) {
+        currentfileName = fileName;
         return preprocess(vmLines).stream()
                 .map((line) -> {
                     String comment = "// " + line + System.lineSeparator();
-                    return comment + parse(fileName, line);
+                    return comment + parse(line);
                 })
                 .collect(Collectors.toList());
     }
 
-    private static String parse(String fileName, String line) {
+    private static String parse(String line) {
         String[] vmCommand = line.split(" ");
         String operation = vmCommand[0];
         switch (operation) {
@@ -48,7 +48,7 @@ public class VMParser {
             case "if-goto":
                 return handleIfGoto(vmCommand);
             case "function":
-                return handleFunction(fileName, vmCommand);
+                return handleFunction(vmCommand);
             case "return":
                 return handleReturn();
             case "call":
@@ -141,23 +141,23 @@ public class VMParser {
     }
 
     private static String handleCall(String[] command) {
-        String functionName = command[1];
+        String calleeName = command[1];
         String nArgs = command[2];
-        return ASMWriter.call(functionName, nArgs);
+        return ASMWriter.call(calleeName, nArgs);
     }
 
     private static String handleReturn() {
         return ASMWriter.ret();
     }
 
-    private static String handleFunction(String fileName, String[] command) {
-        functionName = fileName + "." + command[1];
+    private static String handleFunction(String[] command) {
+        functionName = command[1];
         String nVars = command[2];
         return ASMWriter.function(functionName, nVars);
     }
 
     private static String handleIfGoto(String[] command) {
-        String labelName = command[1];
+        String labelName = functionName + "$" + command[1];
         return ASMWriter.ifGoto(labelName);
     }
 

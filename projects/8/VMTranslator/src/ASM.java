@@ -123,6 +123,9 @@ public class ASM {
         return "D=D+A";
     }
 
+    public static String addDToA() {
+        return "A=A+D";
+    }
     public static String subAFromD() {
         return "D=D-A";
     }
