@@ -17,12 +17,17 @@ public class ASMTest {
     }
 
     @Test
-    public void testMoveConstantToA() {
+    public void testMoveDtoA() {
+        assertEquals("A=D", ASM.moveDToA());
+    }
+
+    @Test
+    public void testMoveValueToA() {
         assertEquals("@1234", ASM.moveValueToA("1234"));
     }
 
     @Test
-    public void testMoveConstantToD() {
+    public void testMoveValueToD() {
         String c = "1234";
         List<String> expectedList = List.of(
                 "@" + c,
@@ -55,11 +60,12 @@ public class ASMTest {
         String expected = String.join(System.lineSeparator(), expectedList);
         assertEquals(expected, ASM.loadDereferenceToA(reference));
     }
+
     @Test
     public void testStoreToPointedAddressFromDRegister() {
         String reference = "SP";
         List<String> expectedList = List.of(
-                "@" + reference ,
+                "@" + reference,
                 "A=M",
                 "M=D"
         );
@@ -88,6 +94,7 @@ public class ASMTest {
         String expected = String.join(System.lineSeparator(), expectedList);
         assertEquals(expected, ASM.storeDToAddress(address));
     }
+
     @Test
     public void testIncrement() {
         String address = "1234";
@@ -150,10 +157,14 @@ public class ASMTest {
     }
 
     @Test
-    public void testAdd() {
+    public void testAddAtoD() {
         assertEquals("D=D+A", ASM.addAToD());
     }
 
+    @Test
+    public void testAddDtoA() {
+        assertEquals("A=A+D", ASM.addDToA());
+    }
     @Test
     public void testSub() {
         assertEquals("D=D-A", ASM.subAFromD());
@@ -163,16 +174,34 @@ public class ASMTest {
     public void testNeg() {
         assertEquals("D=-D", ASM.negD());
     }
+
     @Test
     public void testNot() {
         assertEquals("D=!D", ASM.notD());
     }
+
     @Test
     public void testAnd() {
         assertEquals("D=D&A", ASM.andAD());
     }
+
     @Test
     public void testOr() {
         assertEquals("D=D|A", ASM.orAD());
+    }
+
+    @Test
+    public void testLabel() {
+        String myLabel = "MyLabel";
+        assertEquals("(" + myLabel + ")", ASM.label(myLabel));
+    }
+
+    @Test
+    public void testJMP() {
+        assertEquals("0;JMP", ASM.jmp());
+    }
+    @Test
+    public void testJNE() {
+        assertEquals("D;JNE", ASM.jne());
     }
 }

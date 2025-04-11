@@ -1,19 +1,8 @@
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Random;
 
 public class ASMWriter {
-    private static int STATIC_INDEX = 16;
-    public static final Map<String, String> map = Map.ofEntries(
-            Map.entry("local", "1"),
-            Map.entry("argument", "2"),
-            Map.entry("this", "3"),
-            Map.entry("that", "4"),
-            Map.entry("temp", "5"),
-            Map.entry("static", "16")
-    );
-    private static int callIndex = 1;
+    private static int callCounter = 1;
 
     public static String storeSumToAddress(String address, String index, String toAddress) {
         List<String> result = List.of(
@@ -113,19 +102,21 @@ public class ASMWriter {
     }
 
     public static String pushTemp(String index) {
-        return pushEffectiveAddress(map.get("temp"), index);
+        String tempBase = "5";
+        return pushEffectiveAddress(tempBase, index);
     }
 
     public static String popTemp(String index) {
-        return popEffectiveAddress(map.get("temp"), index);
+        String tempBase = "5";
+        return popEffectiveAddress(tempBase, index);
     }
 
-    public static String popStatic(String index) {
-        return popEffectiveAddress(map.get("static"), index);
+    public static String popStatic(String address) {
+        return popAddress(address);
     }
 
-    public static String pushStatic(String index) {
-        return pushEffectiveAddress(map.get("static"), index);
+    public static String pushStatic(String address) {
+        return pushAddress(address);
     }
 
     public static String pushPointer(String index) {
@@ -344,8 +335,8 @@ public class ASMWriter {
      * @return
      */
     public static String call(String functionName, String nArgs) {
-        String retAddressLabelName = functionName + "$ret." + callIndex;
-        callIndex++;
+        String retAddressLabelName = functionName + "$ret." + callCounter;
+        callCounter++;
         List<String> result = List.of(
                 // push retAddressLabel
                 pushValue(retAddressLabelName),
@@ -359,10 +350,10 @@ public class ASMWriter {
                 pushAddress("THAT"),
                 // reposition for callee ARG = SP – 5 – nArgs
                 ASM.loadAddressToD("SP"),
-                "@" + "5",
-                "D=D-A",
-                "@" + nArgs,
-                "D=D-A",
+                ASM.moveValueToA("5"),
+                ASM.subAFromD(),
+                ASM.moveValueToA(nArgs),
+                ASM.subAFromD(),
                 ASM.storeDToAddress("ARG"),
                 // reposition for callee LCL = SP
                 moveFromAddressToAddress("SP", "LCL"),

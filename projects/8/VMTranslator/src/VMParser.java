@@ -72,7 +72,8 @@ public class VMParser {
             case "that":
                 return ASMWriter.pushThat(index);
             case "static":
-                return ASMWriter.pushStatic(index);
+                String address = currentfileName + "." + index;
+                return ASMWriter.pushStatic(address);
             case "temp":
                 return ASMWriter.pushTemp(index);
             case "pointer":
@@ -94,7 +95,8 @@ public class VMParser {
             case "that":
                 return ASMWriter.popThat(index);
             case "static":
-                return ASMWriter.popStatic(index);
+                String address = currentfileName + "." + index;
+                return ASMWriter.popStatic(address);
             case "temp":
                 return ASMWriter.popTemp(index);
             case "pointer":

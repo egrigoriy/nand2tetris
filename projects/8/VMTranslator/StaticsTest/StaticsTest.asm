@@ -335,7 +335,7 @@ M=M-1
 @SP
 A=M
 D=M
-@16
+@Class1.0
 M=D
 // push argument 1
 @ARG
@@ -358,7 +358,7 @@ M=M-1
 @SP
 A=M
 D=M
-@17
+@Class1.1
 M=D
 // push constant 0
 @0
@@ -437,7 +437,7 @@ A=D
 // function Class1.get 0
 (Class1.get)
 // push static 0
-@16
+@Class1.0
 D=M
 @SP
 A=M
@@ -445,7 +445,7 @@ M=D
 @SP
 M=M+1
 // push static 1
-@17
+@Class1.1
 D=M
 @SP
 A=M
@@ -559,7 +559,7 @@ M=M-1
 @SP
 A=M
 D=M
-@16
+@Class2.0
 M=D
 // push argument 1
 @ARG
@@ -582,7 +582,7 @@ M=M-1
 @SP
 A=M
 D=M
-@17
+@Class2.1
 M=D
 // push constant 0
 @0
@@ -661,7 +661,7 @@ A=D
 // function Class2.get 0
 (Class2.get)
 // push static 0
-@16
+@Class2.0
 D=M
 @SP
 A=M
@@ -669,7 +669,7 @@ M=D
 @SP
 M=M+1
 // push static 1
-@17
+@Class2.1
 D=M
 @SP
 A=M

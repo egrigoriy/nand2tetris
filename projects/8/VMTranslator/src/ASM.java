@@ -24,8 +24,7 @@ public class ASM {
 
     public static String storeDToDereference(String reference) {
         List<String> result = List.of(
-                moveValueToA(reference),
-                "A=M",
+                loadAddressToA(reference),
                 "M=D"
         );
         return String.join(System.lineSeparator(), result);
@@ -33,16 +32,14 @@ public class ASM {
 
     public static String loadDereferenceToD(String reference) {
         List<String> result = List.of(
-                moveValueToA(reference),
-                "A=M",
+                loadAddressToA(reference),
                 "D=M"
         );
         return String.join(System.lineSeparator(), result);
     }
     public static String loadDereferenceToA(String reference) {
         List<String> result = List.of(
-                moveValueToA(reference),
-                "A=M",
+                loadAddressToA(reference),
                 "A=M"
         );
         return String.join(System.lineSeparator(), result);
@@ -50,8 +47,7 @@ public class ASM {
 
     public static String storeDToReferencePlusIndex(String reference, String index) {
         List<String> result = List.of(
-                moveValueToA(reference),
-                "A=M",
+                loadAddressToA(reference),
                 "M=D"
         );
         return String.join(System.lineSeparator(), result);
@@ -59,8 +55,7 @@ public class ASM {
 
     public static String loadReferenceToD(String reference) {
         List<String> result = List.of(
-                moveValueToA(reference),
-                "A=M",
+                loadAddressToA(reference),
                 "D=M"
         );
         return String.join(System.lineSeparator(), result);
@@ -69,6 +64,13 @@ public class ASM {
         List<String> result = List.of(
                 moveValueToA(address),
                 "D=M"
+        );
+        return String.join(System.lineSeparator(), result);
+    }
+    public static String loadAddressToA(String address) {
+        List<String> result = List.of(
+                moveValueToA(address),
+                "A=M"
         );
         return String.join(System.lineSeparator(), result);
     }
