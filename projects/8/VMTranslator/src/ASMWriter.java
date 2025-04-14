@@ -365,4 +365,29 @@ public class ASMWriter {
         return String.join(System.lineSeparator(), result);
     }
 
+    public static List<String> bootstrap() {
+        return List.of(
+                initSP(),
+                callSysInit()
+        );
+    }
+    private static String callSysInit() {
+        List<String> result = VMParser.parse("", List.of("call Sys.init 0"));
+        return String.join(System.lineSeparator(), result);
+    }
+    public static String initSP() {
+        List<String> result = List.of(
+                ASM.moveValueToD("256"),
+                ASM.storeDToAddress("SP")
+        );
+        return String.join(System.lineSeparator(), result);
+    }
+    public static List<String> endInfiniteLoop() {
+        return List.of(
+                ASM.label("END"),
+                ASM.moveValueToA("END"),
+                ASM.jmp()
+        );
+    }
+
 }
