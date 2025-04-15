@@ -4,7 +4,7 @@ import java.util.List;
 public class ASMWriter {
     private static int callCounter = 1;
 
-    public static String storeSumToAddress(String address, String index, String toAddress) {
+    private static String storeSumToAddress(String address, String index, String toAddress) {
         List<String> result = List.of(
                 ASM.loadAddressToD(address),
                 ASM.moveValueToA(index),
@@ -23,7 +23,7 @@ public class ASMWriter {
         return String.join(System.lineSeparator(), result);
     }
 
-    public static String pushDereference(String reference, String index) {
+    private static String pushDereference(String reference, String index) {
         String pointerAddress = "R13";
         List<String> result = List.of(
                 storeSumToAddress(reference, index, pointerAddress),
@@ -33,7 +33,7 @@ public class ASMWriter {
         return String.join(System.lineSeparator(), result);
     }
 
-    public static String popDereference(String reference, String index) {
+    private static String popDereference(String reference, String index) {
         String pointerAddress = "R13";
         List<String> result = List.of(
                 storeSumToAddress(reference, index, pointerAddress),
@@ -43,7 +43,7 @@ public class ASMWriter {
         return String.join(System.lineSeparator(), result);
     }
 
-    public static String pushAddress(String address) {
+    private static String pushAddress(String address) {
         List<String> result = List.of(
                 ASM.loadAddressToD(address),
                 ASM.pushD()
@@ -51,7 +51,7 @@ public class ASMWriter {
         return String.join(System.lineSeparator(), result);
     }
 
-    public static String popAddress(String address) {
+    private static String popAddress(String address) {
         List<String> result = List.of(
                 ASM.popD(),
                 ASM.storeDToAddress(address)
@@ -59,12 +59,12 @@ public class ASMWriter {
         return String.join(System.lineSeparator(), result);
     }
 
-    public static String pushEffectiveAddress(String base, String index) {
+    private static String pushEffectiveAddress(String base, String index) {
         String address = String.valueOf(Integer.parseInt(base) + Integer.parseInt(index));
         return pushAddress(address);
     }
 
-    public static String popEffectiveAddress(String base, String index) {
+    private static String popEffectiveAddress(String base, String index) {
         String address = String.valueOf(Integer.parseInt(base) + Integer.parseInt(index));
         return popAddress(address);
     }
@@ -319,7 +319,7 @@ public class ASMWriter {
         return String.join(System.lineSeparator(), result);
     }
 
-    public static String moveFromAddressToAddress(String fromAddress, String toAddress) {
+    private static String moveFromAddressToAddress(String fromAddress, String toAddress) {
         List<String> result = List.of(
                 ASM.loadAddressToD(fromAddress),
                 ASM.storeDToAddress(toAddress)
@@ -365,23 +365,46 @@ public class ASMWriter {
         return String.join(System.lineSeparator(), result);
     }
 
+    /**
+     * Returns assembler code for setting SP and calling Sys.init function
+     *
+     * @return assembler code for setting SP and calling Sys.init function
+     */
     public static List<String> bootstrap() {
         return List.of(
                 initSP(),
                 callSysInit()
         );
     }
+
+    /**
+     * Returns assembler code for calling Sys.init function
+     *
+     * @return assembler code for calling Sys.init function
+     */
     private static String callSysInit() {
         List<String> result = VMParser.parse("", List.of("call Sys.init 0"));
         return String.join(System.lineSeparator(), result);
     }
-    public static String initSP() {
+
+    /**
+     * Returns assembler code for setting SP to 256
+     *
+     * @return assembler code for setting SP to 256
+     */
+    private static String initSP() {
         List<String> result = List.of(
                 ASM.moveValueToD("256"),
                 ASM.storeDToAddress("SP")
         );
         return String.join(System.lineSeparator(), result);
     }
+
+    /**
+     * Returns assembler code for empty infinite loop
+     *
+     * @return returns assembler code for empty infinite loop
+     */
     public static List<String> endInfiniteLoop() {
         return List.of(
                 ASM.label("END"),
@@ -389,5 +412,4 @@ public class ASMWriter {
                 ASM.jmp()
         );
     }
-
 }

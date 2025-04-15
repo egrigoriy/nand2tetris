@@ -1,13 +1,24 @@
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Represents a VM parser
+ */
 public class VMParser {
+    private static String currentFileName = "defaultFileName";
     private static String functionName = "defaultFunction";
-    private static String currentfileName = "defaultFileName";
 
+    /**
+     * Returns assembly code corresponding to given file name and content.
+     * Each original vm line is included as comment just before corresponding assembly code
+     *
+     * @param fileName
+     * @param vmLines
+     * @return assembler code corresponding to given file name and content
+     */
     public static List<String> parse(String fileName, List<String> vmLines) {
-        currentfileName = fileName;
-        return preprocess(vmLines).stream()
+        currentFileName = fileName;
+        return VMPreprocessor.process(vmLines).stream()
                 .map((line) -> {
                     String comment = "// " + line + System.lineSeparator();
                     return comment + parse(line);
@@ -72,7 +83,7 @@ public class VMParser {
             case "that":
                 return ASMWriter.pushThat(index);
             case "static":
-                String address = currentfileName + "." + index;
+                String address = currentFileName + "." + index;
                 return ASMWriter.pushStatic(address);
             case "temp":
                 return ASMWriter.pushTemp(index);
@@ -95,7 +106,7 @@ public class VMParser {
             case "that":
                 return ASMWriter.popThat(index);
             case "static":
-                String address = currentfileName + "." + index;
+                String address = currentFileName + "." + index;
                 return ASMWriter.popStatic(address);
             case "temp":
                 return ASMWriter.popTemp(index);
@@ -171,24 +182,5 @@ public class VMParser {
     private static String handleLabel(String[] command) {
         String labelName = functionName + "$" + command[1];
         return ASMWriter.label(labelName);
-    }
-
-
-    private static List<String> preprocess(List<String> lines) {
-        return removeComments(removeEmptyLines(lines));
-    }
-
-    private static List<String> removeEmptyLines(List<String> lines) {
-        return lines.stream()
-                .filter(el -> !el.trim().isEmpty())
-                .collect(Collectors.toList());
-    }
-
-    private static List<String> removeComments(List<String> lines) {
-        return lines.stream()
-                .filter(el -> !el.trim().startsWith("//"))
-                .map(el -> el.contains("/") ? el.substring(0, el.indexOf("/")) : el)
-                .map(String::trim)
-                .collect(Collectors.toList());
     }
 }
