@@ -81,7 +81,7 @@ public class ASMTest {
                 "D=M"
         );
         String expected = String.join(System.lineSeparator(), expectedList);
-        assertEquals(expected, ASM.loadAddressToD(address));
+        assertEquals(expected, ASM.loadMemoryToD(address));
     }
 
     @Test
@@ -92,7 +92,7 @@ public class ASMTest {
                 "M=D"
         );
         String expected = String.join(System.lineSeparator(), expectedList);
-        assertEquals(expected, ASM.storeDToAddress(address));
+        assertEquals(expected, ASM.storeDToMemory(address));
     }
 
     @Test
@@ -203,5 +203,170 @@ public class ASMTest {
     @Test
     public void testJNE() {
         assertEquals("D;JNE", ASM.jne());
+    }
+
+    @Test
+    public void testPushValue() {
+        String value = "1234";
+        List<String> expectedList = List.of(
+                "@" + value,
+                "D=A",
+                "@SP",
+                "A=M",
+                "M=D",
+                "@SP",
+                "M=M+1"
+        );
+        String expected = String.join(System.lineSeparator(), expectedList);
+        assertEquals(expected, ASM.pushValue(value));
+    }
+    @Test
+    public void testStoreValueToMemory() {
+        String value = "1234";
+        String address = "257";
+        List<String> expectedList = List.of(
+                "@" + value,
+                "D=A",
+                "@" + address,
+                "M=D"
+        );
+        String expected = String.join(System.lineSeparator(), expectedList);
+        assertEquals(expected, ASM.storeValueToMemory(value, address));
+    }
+
+    @Test
+    public void testJumpTo() {
+        String label = "jumpLabel";
+        List<String> expectedList = List.of(
+                "@" + label,
+                "0;JMP"
+        );
+        String expected = String.join(System.lineSeparator(), expectedList);
+        assertEquals(expected, ASM.jumpTo(label));
+    }
+
+    @Test
+    public void testMoveFromMemoryToMemory() {
+        String srcAddress = "1234";
+        String dstAddress = "5678";
+        List<String> expectedList = List.of(
+                "@" + srcAddress,
+                "D=M",
+                "@" + dstAddress,
+                "M=D"
+        );
+        String expected = String.join(System.lineSeparator(), expectedList);
+        assertEquals(expected, ASM.moveFromMemoryToMemory(srcAddress, dstAddress));
+    }
+
+
+    @Test
+    public void testPushFromMemory() {
+        String address = "1234";
+        List<String> expectedList = List.of(
+                "@" + address,
+                "D=M",
+                "@SP",
+                "A=M",
+                "M=D",
+                "@SP",
+                "M=M+1"
+        );
+        String expected = String.join(System.lineSeparator(), expectedList);
+        assertEquals(expected, ASM.pushFromMemory(address));
+    }
+    @Test
+    public void testPopToMemory() {
+        String address = "1234";
+        List<String> expectedList = List.of(
+                "@SP",
+                "M=M-1",
+                "@SP",
+                "A=M",
+                "D=M",
+                "@" + address,
+                "M=D"
+        );
+        String expected = String.join(System.lineSeparator(), expectedList);
+        assertEquals(expected, ASM.popToMemory(address));
+    }
+    @Test
+    public void testPushFromTempSegment() {
+        String index = "2";
+        String address = String.valueOf(5 + Integer.parseInt(index));
+        List<String> expectedList = List.of(
+                "@" + address ,
+                "D=M",
+                "@SP",
+                "A=M",
+                "M=D",
+                "@SP",
+                "M=M+1"
+        );
+        String expected = String.join(System.lineSeparator(), expectedList);
+        assertEquals(expected, ASM.pushFromTempSegment(index));
+    }
+    @Test
+    public void testPopToTempSegment() {
+        String index = "3";
+        String address = String.valueOf(5 + Integer.parseInt(index));
+        List<String> expectedList = List.of(
+                "@SP",
+                "M=M-1",
+                "@SP",
+                "A=M",
+                "D=M",
+                "@" + address,
+                "M=D"
+        );
+        String expected = String.join(System.lineSeparator(), expectedList);
+        assertEquals(expected, ASM.popToTempSegment(index));
+    }
+    @Test
+    public void testPushFromPointedSegment() {
+        String reference = "ARG";
+        String index = "2";
+        String address = String.valueOf(5 + Integer.parseInt(index));
+        List<String> expectedList = List.of(
+                "@" + reference,
+                "D=M",
+                "@" + index,
+                "D=D+A",
+                "@R13",
+                "M=D",
+                "@R13",
+                "A=M",
+                "D=M",
+                "@SP",
+                "A=M",
+                "M=D",
+                "@SP",
+                "M=M+1"
+        );
+        String expected = String.join(System.lineSeparator(), expectedList);
+        assertEquals(expected, ASM.pushFromPointedSegment(reference, index));
+    }
+    @Test
+    public void testPopToPointedSegment() {
+        String reference = "LCL";
+        String index = "3";
+        List<String> expectedList = List.of(
+                "@" + reference,
+                "D=M",
+                "@" + index,
+                "D=D+A",
+                "@R13",
+                "M=D",
+                "@SP",
+                "M=M-1",
+                "@SP",
+                "A=M",
+                "D=M",
+                "@R13",
+                "A=M",
+                "M=D"
+        );
+        String expected = String.join(System.lineSeparator(), expectedList);
+        assertEquals(expected, ASM.popToPointedSegment(reference, index));
     }
 }

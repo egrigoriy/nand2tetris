@@ -2,7 +2,6 @@
 D=A
 @SP
 M=D
-// call Sys.init 0
 @Sys.init$ret.4
 D=A
 @SP
@@ -157,14 +156,14 @@ A=M
 A=M
 D=D-A
 D=-D
-@TRUE$65190
+@TRUE$3026
 D;JLT
 D=0
-@END$65190
+@END$3026
 0;JMP
-(TRUE$65190)
+(TRUE$3026)
 D=-1
-(END$65190)
+(END$3026)
 @SP
 A=M
 M=D
@@ -261,8 +260,7 @@ M=D
 @SP
 M=M+1
 @R15
-D=M
-A=D
+A=M
 0;JMP
 // label N_GE_2
 (Main.fibonacci$N_GE_2)
@@ -530,6 +528,5 @@ M=D
 @SP
 M=M+1
 @R15
-D=M
-A=D
+A=M
 0;JMP

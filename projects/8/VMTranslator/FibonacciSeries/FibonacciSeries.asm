@@ -124,7 +124,7 @@ D=M
 A=M
 M=D
 // label LOOP
-(default$LOOP)
+(defaultFunction$LOOP)
 // push argument 0
 @ARG
 D=M
@@ -146,13 +146,13 @@ M=M-1
 @SP
 A=M
 D=M
-@default$COMPUTE_ELEMENT
+@defaultFunction$COMPUTE_ELEMENT
 D;JNE
 // goto END
-@default$END
+@defaultFunction$END
 0;JMP
 // label COMPUTE_ELEMENT
-(default$COMPUTE_ELEMENT)
+(defaultFunction$COMPUTE_ELEMENT)
 // push that 0
 @THAT
 D=M
@@ -313,10 +313,10 @@ D=M
 A=M
 M=D
 // goto LOOP
-@default$LOOP
+@defaultFunction$LOOP
 0;JMP
 // label END
-(default$END)
+(defaultFunction$END)
 (END)
 @END
 0;JMP

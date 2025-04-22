@@ -19,15 +19,21 @@ public class VMParser {
     public static List<String> parse(String fileName, List<String> vmLines) {
         currentFileName = fileName;
         return VMPreprocessor.process(vmLines).stream()
-                .map((line) -> {
-                    String comment = "// " + line + System.lineSeparator();
-                    return comment + parse(line);
+                .map((vmLine) -> {
+                    String comment = "// " + vmLine + System.lineSeparator();
+                    return comment + parse(vmLine);
                 })
                 .collect(Collectors.toList());
     }
 
-    private static String parse(String line) {
-        String[] vmCommand = line.split(" ");
+    /**
+     * Returns assembly code corresponding to given vm line
+     *
+     * @param vmLine
+     * @return assembly code corresponding to given vm line
+     */
+    private static String parse(String vmLine) {
+        String[] vmCommand = vmLine.split(" ");
         String operation = vmCommand[0];
         switch (operation) {
             case "push":
@@ -68,6 +74,12 @@ public class VMParser {
         return null;
     }
 
+    /**
+     * Returns assembly code corresponding to push command
+     *
+     * @param command
+     * @return assembly code corresponding to push command
+     */
     private static String handlePush(String[] command) {
         String segment = command[1];
         String index = command[2];
@@ -93,6 +105,12 @@ public class VMParser {
         return null;
     }
 
+    /**
+     * Returns assembly code corresponding to pop command
+     *
+     * @param command
+     * @return assembly code corresponding to pop command
+     */
     private static String handlePop(String[] command) {
         String segment = command[1];
         String index = command[2];
@@ -116,69 +134,147 @@ public class VMParser {
         return null;
     }
 
+    /**
+     * Returns assembly code corresponding to add operation
+     *
+     * @return assembly code corresponding to add operation
+     */
     private static String handleAdd() {
         return ASMWriter.add();
     }
 
+    /**
+     * Returns assembly code corresponding to sub operation
+     *
+     * @return assembly code corresponding to sub operation
+     */
     private static String handleSub() {
         return ASMWriter.sub();
     }
 
+    /**
+     * Returns assembly code corresponding to lt operation
+     *
+     * @return assembly code corresponding to lt operation
+     */
     private static String handleLt() {
         return ASMWriter.lt();
     }
 
+    /**
+     * Returns assembly code corresponding to gt operation
+     *
+     * @return assembly code corresponding to gt operation
+     */
     private static String handleGt() {
         return ASMWriter.gt();
     }
 
+    /**
+     * Returns assembly code corresponding to eq operation
+     *
+     * @return assembly code corresponding to eq operation
+     */
     private static String handleEq() {
         return ASMWriter.eq();
     }
 
-
+    /**
+     * Returns assembly code corresponding to and operation
+     *
+     * @return assembly code corresponding to and operation
+     */
     private static String handleAnd() {
         return ASMWriter.and();
     }
 
+    /**
+     * Returns assembly code corresponding to or operation
+     *
+     * @return assembly code corresponding to or operation
+     */
     private static String handleOr() {
         return ASMWriter.or();
     }
 
+    /**
+     * Returns assembly code corresponding to not operation
+     *
+     * @return assembly code corresponding to not operation
+     */
     private static String handleNot() {
         return ASMWriter.not();
     }
 
+    /**
+     * Returns assembly code corresponding to neg operation
+     *
+     * @return assembly code corresponding to neg operation
+     */
     private static String handleNeg() {
         return ASMWriter.neg();
     }
 
+    /**
+     * Returns assembly code corresponding to call operation
+     *
+     * @param command
+     * @return assembly code corresponding to call operation
+     */
     private static String handleCall(String[] command) {
         String calleeName = command[1];
         String nArgs = command[2];
         return ASMWriter.call(calleeName, nArgs);
     }
 
+    /**
+     * Returns assembly code corresponding to return keyword
+     *
+     * @return assembly code corresponding to return keyword
+     */
     private static String handleReturn() {
         return ASMWriter.ret();
     }
 
+    /**
+     * Returns assembly code corresponding to function operation
+     *
+     * @return assembly code corresponding to function operation
+     */
     private static String handleFunction(String[] command) {
         functionName = command[1];
         String nVars = command[2];
         return ASMWriter.function(functionName, nVars);
     }
 
+    /**
+     * Returns assembly code corresponding to if-goto operation
+     *
+     * @param command
+     * @return assembly code corresponding to if-goto operation
+     */
     private static String handleIfGoto(String[] command) {
         String labelName = functionName + "$" + command[1];
         return ASMWriter.ifGoto(labelName);
     }
 
+    /**
+     * Returns assembly code corresponding to goto keyword
+     *
+     * @param command
+     * @return assembly code corresponding to goto keyword
+     */
     private static String handleGoto(String[] command) {
         String labelName = functionName + "$" + command[1];
         return ASMWriter.goTo(labelName);
     }
 
+    /**
+     * Returns assembly code corresponding to label operation
+     *
+     * @param command
+     * @return assembly code corresponding to label operation
+     */
     private static String handleLabel(String[] command) {
         String labelName = functionName + "$" + command[1];
         return ASMWriter.label(labelName);

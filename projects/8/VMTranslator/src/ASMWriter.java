@@ -1,134 +1,175 @@
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents assembly writer
+ */
 public class ASMWriter {
     private static int callCounter = 1;
 
-    private static String storeSumToAddress(String address, String index, String toAddress) {
-        List<String> result = List.of(
-                ASM.loadAddressToD(address),
-                ASM.moveValueToA(index),
-                ASM.addAToD(),
-                ASM.storeDToAddress(toAddress)
-        );
-        return String.join(System.lineSeparator(), result);
-    }
-
-
+    /**
+     * Returns assembly code for PUSH a value to the stack
+     *
+     * @param value
+     * @return assembly code for PUSH a value to the stack
+     */
     public static String pushValue(String value) {
-        List<String> result = List.of(
-                ASM.moveValueToD(value),
-                ASM.pushD()
-        );
-        return String.join(System.lineSeparator(), result);
+        return ASM.pushValue(value);
     }
 
-    private static String pushDereference(String reference, String index) {
-        String pointerAddress = "R13";
-        List<String> result = List.of(
-                storeSumToAddress(reference, index, pointerAddress),
-                ASM.loadDereferenceToD(pointerAddress),
-                ASM.pushD()
-        );
-        return String.join(System.lineSeparator(), result);
-    }
-
-    private static String popDereference(String reference, String index) {
-        String pointerAddress = "R13";
-        List<String> result = List.of(
-                storeSumToAddress(reference, index, pointerAddress),
-                ASM.popD(),
-                ASM.storeDToDereference(pointerAddress)
-        );
-        return String.join(System.lineSeparator(), result);
-    }
-
-    private static String pushAddress(String address) {
-        List<String> result = List.of(
-                ASM.loadAddressToD(address),
-                ASM.pushD()
-        );
-        return String.join(System.lineSeparator(), result);
-    }
-
-    private static String popAddress(String address) {
-        List<String> result = List.of(
-                ASM.popD(),
-                ASM.storeDToAddress(address)
-        );
-        return String.join(System.lineSeparator(), result);
-    }
-
-    private static String pushEffectiveAddress(String base, String index) {
-        String address = String.valueOf(Integer.parseInt(base) + Integer.parseInt(index));
-        return pushAddress(address);
-    }
-
-    private static String popEffectiveAddress(String base, String index) {
-        String address = String.valueOf(Integer.parseInt(base) + Integer.parseInt(index));
-        return popAddress(address);
-    }
-
+    /**
+     * Returns assembly code for PUSH from LOCAL segment index
+     *
+     * @param index
+     * @return assembly code for PUSH from LOCAL segment index
+     */
     public static String pushLocal(String index) {
-        return pushDereference("LCL", index);
+        return ASM.pushFromPointedSegment("LCL", index);
     }
 
+    /**
+     * Returns assembly code for POP to LOCAL segment index
+     *
+     * @param index
+     * @return assembly code for POP to LOCAL segment index
+     */
     public static String popLocal(String index) {
-        return popDereference("LCL", index);
+        return ASM.popToPointedSegment("LCL", index);
     }
 
+    /**
+     * Returns assembly code for PUSH from ARGUMENT segment index
+     *
+     * @param index
+     * @return assembly code for PUSH from ARGUMENT segment index
+     */
     public static String pushArgument(String index) {
-        return pushDereference("ARG", index);
+        return ASM.pushFromPointedSegment("ARG", index);
     }
 
+    /**
+     * Returns assembly code for POP to ARGUMENT segment index
+     *
+     * @param index
+     * @return assembly code for POP to ARGUMENT segment index
+     */
     public static String popArgument(String index) {
-        return popDereference("ARG", index);
+        return ASM.popToPointedSegment("ARG", index);
     }
 
+    /**
+     * Returns assembly code for PUSH from THIS segment index
+     *
+     * @param index
+     * @return assembly code for PUSH from THIS segment index
+     */
     public static String pushThis(String index) {
-        return pushDereference("THIS", index);
+        return ASM.pushFromPointedSegment("THIS", index);
     }
 
+    /**
+     * Returns assembly code for POP to THIS segment index
+     *
+     * @param index
+     * @return assembly code for POP to THIS segment index
+     */
     public static String popThis(String index) {
-        return popDereference("THIS", index);
+        return ASM.popToPointedSegment("THIS", index);
     }
 
+    /**
+     * Returns assembly code for PUSH from THAT segment index
+     *
+     * @param index
+     * @return assembly code for PUSH from THAT segment index
+     */
     public static String pushThat(String index) {
-        return pushDereference("THAT", index);
+        return ASM.pushFromPointedSegment("THAT", index);
     }
 
+    /**
+     * Returns assembly code for POP to THAT segment index
+     *
+     * @param index
+     * @return assembly code for POP to THAT segment index
+     */
     public static String popThat(String index) {
-        return popDereference("THAT", index);
+        return ASM.popToPointedSegment("THAT", index);
     }
 
+    /**
+     * Returns assembly code for PUSH from TEMP segment index
+     *
+     * @param index
+     * @return assembly code for PUSH from TEMP segment index
+     */
     public static String pushTemp(String index) {
-        String tempBase = "5";
-        return pushEffectiveAddress(tempBase, index);
+        return ASM.pushFromTempSegment(index);
     }
 
+    /**
+     * Returns assembly code for POP to TEMP segment index
+     *
+     * @param index
+     * @return assembly code for POP to TEMP segment index
+     */
     public static String popTemp(String index) {
-        String tempBase = "5";
-        return popEffectiveAddress(tempBase, index);
+        return ASM.popToTempSegment(index);
     }
 
-    public static String popStatic(String address) {
-        return popAddress(address);
-    }
-
+    /**
+     * Returns assembly code for PUSH from STATIC segment index
+     *
+     * @param address
+     * @return assembly code for PUSH from STATIC segment index
+     */
     public static String pushStatic(String address) {
-        return pushAddress(address);
+        return ASM.pushFromMemory(address);
     }
+
+    /**
+     * Returns assembly code for POP to STATIC segment index
+     *
+     * @param address
+     * @return assembly code for POP to STATIC segment index
+     */
+    public static String popStatic(String address) {
+        return ASM.popToMemory(address);
+    }
+
+
+    /**
+     * Returns assembly code for PUSH from POINTER index.
+     * It's equivalent to PUSH THIS memory content if index is 0,
+     * and to THAT memory content if index is 1.
+     *
+     * @param index
+     * @return assembly code for PUSH from argument segment index
+     */
 
     public static String pushPointer(String index) {
-        String address = index.equals("0") ? "THIS" : "THAT";
-        return pushAddress(address);
+        String register = index.equals("0") ? "THIS" : "THAT";
+        return ASM.pushFromMemory(register);
     }
 
+    /**
+     * Returns assembly code for POP to POINTER index.
+     * It's equivalent to POP to THIS memory content if index is 0,
+     * and to THAT memory content if index is 1.
+     *
+     * @param index
+     * @return assembly code for POP argument segment index
+     */
     public static String popPointer(String index) {
-        String address = index.equals("0") ? "THIS" : "THAT";
-        return popAddress(address);
+        String register = index.equals("0") ? "THIS" : "THAT";
+        return ASM.popToMemory(register);
     }
 
+    /**
+     * Returns assembly code for VM command ADD
+     *
+     * @return assembly code for VM command ADD
+     */
     public static String add() {
         List<String> result = List.of(
                 ASM.popD(),
@@ -139,6 +180,11 @@ public class ASMWriter {
         return String.join(System.lineSeparator(), result);
     }
 
+    /**
+     * Returns assembly code for VM command SUB
+     *
+     * @return assembly code for VM command SUB
+     */
     public static String sub() {
         List<String> result = List.of(
                 ASM.popD(),
@@ -150,6 +196,11 @@ public class ASMWriter {
         return String.join(System.lineSeparator(), result);
     }
 
+    /**
+     * Returns assembly code for VM command NEG
+     *
+     * @return assembly code for VM command NEG
+     */
     public static String neg() {
         List<String> result = List.of(
                 ASM.popD(),
@@ -159,6 +210,11 @@ public class ASMWriter {
         return String.join(System.lineSeparator(), result);
     }
 
+    /**
+     * Returns assembly code for VM command NOT
+     *
+     * @return assembly code for VM command NOT
+     */
     public static String not() {
         List<String> result = List.of(
                 ASM.popD(),
@@ -168,6 +224,11 @@ public class ASMWriter {
         return String.join(System.lineSeparator(), result);
     }
 
+    /**
+     * Returns assembly code for VM command AND
+     *
+     * @return assembly code for VM command AND
+     */
     public static String and() {
         List<String> result = List.of(
                 ASM.popD(),
@@ -178,6 +239,11 @@ public class ASMWriter {
         return String.join(System.lineSeparator(), result);
     }
 
+    /**
+     * Returns assembly code for VM command OR
+     *
+     * @return assembly code for VM command OR
+     */
     public static String or() {
         List<String> result = List.of(
                 ASM.popD(),
@@ -188,6 +254,11 @@ public class ASMWriter {
         return String.join(System.lineSeparator(), result);
     }
 
+    /**
+     * Returns assembly code for VM command LT
+     *
+     * @return assembly code for VM command LT
+     */
     public static String lt() {
         List<String> result = List.of(
                 ASM.popD(),
@@ -200,6 +271,11 @@ public class ASMWriter {
         return String.join(System.lineSeparator(), result);
     }
 
+    /**
+     * Returns assembly code for VM command GT
+     *
+     * @return assembly code for VM command GT
+     */
     public static String gt() {
         List<String> result = List.of(
                 ASM.popD(),
@@ -212,6 +288,11 @@ public class ASMWriter {
         return String.join(System.lineSeparator(), result);
     }
 
+    /**
+     * Returns assembly code for VM command EQ
+     *
+     * @return assembly code for VM command EQ
+     */
     public static String eq() {
         List<String> result = List.of(
                 ASM.popD(),
@@ -224,23 +305,31 @@ public class ASMWriter {
     }
 
 
+    /**
+     * Returns assembly code for VM command LABEL
+     *
+     * @param labelName
+     * @return assembly code for VM command LABEL
+     */
     public static String label(String labelName) {
         return ASM.label(labelName);
     }
 
+    /**
+     * Returns assembly code for VM command GOTO
+     *
+     * @param labelName
+     * @return assembly code for VM command GOTO
+     */
     public static String goTo(String labelName) {
-        List<String> result = List.of(
-                ASM.moveValueToA(labelName),
-                ASM.jmp()
-        );
-        return String.join(System.lineSeparator(), result);
+        return ASM.jumpTo(labelName);
     }
 
     /**
-     * True = 1111111 => if contains True then !D must be 00000.
+     * Returns assembly code for VM command IF-GOTO
      *
      * @param labelName
-     * @return
+     * @return assembly code for VM command IF-GOTO
      */
     public static String ifGoto(String labelName) {
         List<String> result = List.of(
@@ -251,6 +340,13 @@ public class ASMWriter {
         return String.join(System.lineSeparator(), result);
     }
 
+    /**
+     * Returns assembly code for VM command FUNCTION
+     *
+     * @param functionName
+     * @param nVars
+     * @return assembly code for VM command FUNCTION
+     */
     public static String function(String functionName, String nVars) {
         if (nVars.equals("0")) {
             return label(functionName);
@@ -264,6 +360,12 @@ public class ASMWriter {
         return String.join(System.lineSeparator(), result);
     }
 
+    /**
+     * Returns assembly code for setting all LOCAL segment to 0
+     *
+     * @param nVars
+     * @return assembly code for setting all LOCAL segment to 0
+     */
     private static String initLocalSegment(String nVars) {
         int n = Integer.parseInt(nVars);
         List<String> result = new ArrayList<>();
@@ -274,65 +376,60 @@ public class ASMWriter {
     }
 
     /**
-     * Use R14 as pointer to caller frame
+     * Returns assembly code for VM command RETURN.
+     * Address R14 is used as temporary storage of RETURN VALUE.
+     * Address R15 is used as temporary storage of RETURN ADDRESS (address to jump).
      *
-     * @return
+     * @return assembly code for VM command RETURN
      */
     public static String ret() {
         List<String> result = List.of(
                 // store LCL - 5 to R15 as retAddress to jump
-                ASM.loadAddressToD("LCL"),
+                ASM.loadMemoryToD("LCL"),
                 ASM.moveValueToA("5"),
                 ASM.subAFromD(),
-                ASM.storeDToAddress("R15"),
+                ASM.storeDToMemory("R15"),
                 ASM.loadDereferenceToD("R15"),
-                ASM.storeDToAddress("R15"),
+                ASM.storeDToMemory("R15"),
                 // store ARG to R14
-                moveFromAddressToAddress("ARG", "R14"),
+                ASM.moveFromMemoryToMemory("ARG", "R14"),
                 // pop returnValue to reference from R14
                 ASM.popD(),
                 ASM.storeDToDereference("R14"),
                 // SP = LCL coz need to skip all locals
-                moveFromAddressToAddress("LCL", "SP"),
+                ASM.moveFromMemoryToMemory("LCL", "SP"),
                 // pop THAT
                 ASM.popD(),
-                ASM.storeDToAddress("THAT"),
+                ASM.storeDToMemory("THAT"),
                 // pop THIS
                 ASM.popD(),
-                ASM.storeDToAddress("THIS"),
+                ASM.storeDToMemory("THIS"),
                 // pop ARG
                 ASM.popD(),
-                ASM.storeDToAddress("ARG"),
+                ASM.storeDToMemory("ARG"),
                 // pop LCL
                 ASM.popD(),
-                ASM.storeDToAddress("LCL"),
+                ASM.storeDToMemory("LCL"),
                 // SP = R14
-                ASM.loadAddressToD("R14"),
-                ASM.storeDToAddress("SP"),
+                ASM.loadMemoryToD("R14"),
+                ASM.storeDToMemory("SP"),
                 // SP++
                 ASM.increment("SP"),
                 // jmp to address in R15
-                ASM.loadAddressToD("R15"),
-                ASM.moveDToA(),
+                ASM.loadMemoryToA("R15"),
                 ASM.jmp()
         );
         return String.join(System.lineSeparator(), result);
     }
 
-    private static String moveFromAddressToAddress(String fromAddress, String toAddress) {
-        List<String> result = List.of(
-                ASM.loadAddressToD(fromAddress),
-                ASM.storeDToAddress(toAddress)
-        );
-        return String.join(System.lineSeparator(), result);
-    }
-
     /**
-     * Return address label must be unique, cause call can be made from any place
+     * Returns assembly code for VM command CALL.
+     * Injected return address label must be unique,
+     * cause call can be made from any place of the assembly file.
      *
      * @param functionName
      * @param nArgs
-     * @return
+     * @return assembly code for VM command CALL.
      */
     public static String call(String functionName, String nArgs) {
         String retAddressLabelName = functionName + "$ret." + callCounter;
@@ -341,22 +438,22 @@ public class ASMWriter {
                 // push retAddressLabel
                 pushValue(retAddressLabelName),
                 // push LCL
-                pushAddress("LCL"),
+                ASM.pushFromMemory("LCL"),
                 // push ARG
-                pushAddress("ARG"),
+                ASM.pushFromMemory("ARG"),
                 // push THIS
-                pushAddress("THIS"),
+                ASM.pushFromMemory("THIS"),
                 // push THAT
-                pushAddress("THAT"),
+                ASM.pushFromMemory("THAT"),
                 // reposition for callee ARG = SP – 5 – nArgs
-                ASM.loadAddressToD("SP"),
+                ASM.loadMemoryToD("SP"),
                 ASM.moveValueToA("5"),
                 ASM.subAFromD(),
                 ASM.moveValueToA(nArgs),
                 ASM.subAFromD(),
-                ASM.storeDToAddress("ARG"),
+                ASM.storeDToMemory("ARG"),
                 // reposition for callee LCL = SP
-                moveFromAddressToAddress("SP", "LCL"),
+                ASM.moveFromMemoryToMemory("SP", "LCL"),
                 // transfer control to callee
                 goTo(functionName),
                 // inject return address label
@@ -378,26 +475,21 @@ public class ASMWriter {
     }
 
     /**
-     * Returns assembler code for calling Sys.init function
-     *
-     * @return assembler code for calling Sys.init function
-     */
-    private static String callSysInit() {
-        List<String> result = VMParser.parse("", List.of("call Sys.init 0"));
-        return String.join(System.lineSeparator(), result);
-    }
-
-    /**
      * Returns assembler code for setting SP to 256
      *
      * @return assembler code for setting SP to 256
      */
     private static String initSP() {
-        List<String> result = List.of(
-                ASM.moveValueToD("256"),
-                ASM.storeDToAddress("SP")
-        );
-        return String.join(System.lineSeparator(), result);
+        return ASM.storeValueToMemory("256", "SP");
+    }
+
+    /**
+     * Returns assembler code for calling Sys.init function
+     *
+     * @return assembler code for calling Sys.init function
+     */
+    private static String callSysInit() {
+        return call("Sys.init", "0");
     }
 
     /**
@@ -406,10 +498,10 @@ public class ASMWriter {
      * @return returns assembler code for empty infinite loop
      */
     public static List<String> endInfiniteLoop() {
+        String endLabelName = "END";
         return List.of(
-                ASM.label("END"),
-                ASM.moveValueToA("END"),
-                ASM.jmp()
+                ASM.label(endLabelName),
+                ASM.jumpTo(endLabelName)
         );
     }
 }
