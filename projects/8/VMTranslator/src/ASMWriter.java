@@ -467,11 +467,12 @@ public class ASMWriter {
      *
      * @return assembler code for setting SP and calling Sys.init function
      */
-    public static List<String> bootstrap() {
-        return List.of(
+    public static String bootstrap() {
+        List<String> result = List.of(
                 initSP(),
                 callSysInit()
         );
+        return String.join(System.lineSeparator(), result);
     }
 
     /**
@@ -497,11 +498,12 @@ public class ASMWriter {
      *
      * @return returns assembler code for empty infinite loop
      */
-    public static List<String> endInfiniteLoop() {
+    public static String endInfiniteLoop() {
         String endLabelName = "END";
-        return List.of(
+        List<String> result = List.of(
                 ASM.label(endLabelName),
                 ASM.jumpTo(endLabelName)
         );
+        return String.join(System.lineSeparator(), result);
     }
 }

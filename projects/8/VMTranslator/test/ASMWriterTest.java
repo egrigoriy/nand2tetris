@@ -336,6 +336,70 @@ public class ASMWriterTest {
         String expected = String.join(System.lineSeparator(), expectedAsList);
         assertEquals(expected, ASMWriter.popStatic(index));
     }
+
+    @Test
+    public void testLabel() {
+        String labelName = "labelName";
+        List<String> expectedAsList = List.of(
+                "(" + labelName + ")"
+        );
+        String expected = String.join(System.lineSeparator(), expectedAsList);
+        assertEquals(expected, ASMWriter.label(labelName));
+
+    }
+    @Test
+    public void testGoto() {
+        String labelName = "labelName";
+        List<String> expectedAsList = List.of(
+                "@" + labelName,
+                "0;JMP"
+        );
+        String expected = String.join(System.lineSeparator(), expectedAsList);
+        assertEquals(expected, ASMWriter.goTo(labelName));
+
+    }
+    @Test
+    public void testIfGoto() {
+        String labelName = "labelName";
+        List<String> expectedAsList = List.of(
+                "@SP",
+                "M=M-1",
+                "@SP",
+                "A=M",
+                "D=M",
+                "@" + labelName,
+                "D;JNE"
+        );
+        String expected = String.join(System.lineSeparator(), expectedAsList);
+        assertEquals(expected, ASMWriter.ifGoto(labelName));
+    }
+    @Test
+    public void testBootstrap() {
+        String labelName = "labelName";
+        List<String> expectedAsList = List.of(
+                "@SP",
+                "M=M-1",
+                "@SP",
+                "A=M",
+                "D=M",
+                "@" + labelName,
+                "D;JNE"
+        );
+        String expected = String.join(System.lineSeparator(), expectedAsList);
+        assertEquals(expected, ASMWriter.bootstrap());
+    }
+
+    @Test
+    public void testEndInfiniteLoop() {
+        List<String> expectedAsList = List.of(
+                "(END)",
+                "@END",
+                "0;JMP"
+        );
+        String expected = String.join(System.lineSeparator(), expectedAsList);
+        assertEquals(expected, ASMWriter.endInfiniteLoop());
+    }
+
     private String pushFromD() {
         List<String> result = List.of(
                 "@SP",

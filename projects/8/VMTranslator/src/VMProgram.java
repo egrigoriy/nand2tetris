@@ -18,9 +18,9 @@ public class VMProgram {
     public static List<String> toASM(Map<String, List<String>> vmFiles) {
         List<String> result = translateAll(vmFiles);
         if (vmFiles.keySet().size() == 1) {
-            result.addAll(endInfiniteLoop());
+            result.add(endInfiniteLoop());
         } else {
-            result.addAll(0, bootstrap());
+            result.add(0, bootstrap());
         }
         return result;
     }
@@ -42,17 +42,19 @@ public class VMProgram {
 
     /**
      * Provides assembly code for bootstrap
+     *
      * @return assembly code for bootstrap
      */
-    private static List<String> bootstrap() {
+    private static String bootstrap() {
         return ASMWriter.bootstrap();
     }
 
     /**
      * Provides assembly code for end of file infinite loop
+     *
      * @return assembly code for end of file infinite loop
      */
-    private static List<String> endInfiniteLoop() {
+    private static String endInfiniteLoop() {
         return ASMWriter.endInfiniteLoop();
     }
 }
