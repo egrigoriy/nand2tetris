@@ -14,7 +14,7 @@ M=M-1
 @SP
 A=M
 D=M
-@3
+@THIS
 M=D
 // push constant 5000
 @5000
@@ -30,38 +30,38 @@ M=M-1
 @SP
 A=M
 D=M
-@4
+@THAT
 M=D
 // call Sys.main 0
-@Sys.main$ret.35984
+@Sys.main$ret.1
 D=A
 @SP
 A=M
 M=D
 @SP
 M=M+1
-@1
+@LCL
 D=M
 @SP
 A=M
 M=D
 @SP
 M=M+1
-@2
+@ARG
 D=M
 @SP
 A=M
 M=D
 @SP
 M=M+1
-@3
+@THIS
 D=M
 @SP
 A=M
 M=D
 @SP
 M=M+1
-@4
+@THAT
 D=M
 @SP
 A=M
@@ -74,15 +74,15 @@ D=M
 D=D-A
 @0
 D=D-A
-@2
+@ARG
 M=D
 @SP
 D=M
-@1
+@LCL
 M=D
 @Sys.main
 0;JMP
-(Sys.main$ret.35984)
+(Sys.main$ret.1)
 // pop temp 1
 @SP
 M=M-1
@@ -92,9 +92,9 @@ D=M
 @6
 M=D
 // label LOOP
-(LOOP)
+(Sys.init$LOOP)
 // goto LOOP
-@LOOP
+@Sys.init$LOOP
 0;JMP
 // function Sys.main 5
 (Sys.main)
@@ -147,7 +147,7 @@ M=M-1
 @SP
 A=M
 D=M
-@3
+@THIS
 M=D
 // push constant 5001
 @5001
@@ -163,7 +163,7 @@ M=M-1
 @SP
 A=M
 D=M
-@4
+@THAT
 M=D
 // push constant 200
 @200
@@ -174,7 +174,7 @@ M=D
 @SP
 M=M+1
 // pop local 1
-@1
+@LCL
 D=M
 @1
 D=D+A
@@ -197,7 +197,7 @@ M=D
 @SP
 M=M+1
 // pop local 2
-@1
+@LCL
 D=M
 @2
 D=D+A
@@ -220,7 +220,7 @@ M=D
 @SP
 M=M+1
 // pop local 3
-@1
+@LCL
 D=M
 @3
 D=D+A
@@ -243,35 +243,35 @@ M=D
 @SP
 M=M+1
 // call Sys.add12 1
-@Sys.add12$ret.4403
+@Sys.add12$ret.2
 D=A
 @SP
 A=M
 M=D
 @SP
 M=M+1
-@1
+@LCL
 D=M
 @SP
 A=M
 M=D
 @SP
 M=M+1
-@2
+@ARG
 D=M
 @SP
 A=M
 M=D
 @SP
 M=M+1
-@3
+@THIS
 D=M
 @SP
 A=M
 M=D
 @SP
 M=M+1
-@4
+@THAT
 D=M
 @SP
 A=M
@@ -284,15 +284,15 @@ D=M
 D=D-A
 @1
 D=D-A
-@2
+@ARG
 M=D
 @SP
 D=M
-@1
+@LCL
 M=D
 @Sys.add12
 0;JMP
-(Sys.add12$ret.4403)
+(Sys.add12$ret.2)
 // pop temp 0
 @SP
 M=M-1
@@ -302,7 +302,7 @@ D=M
 @5
 M=D
 // push local 0
-@1
+@LCL
 D=M
 @0
 D=D+A
@@ -317,7 +317,7 @@ M=D
 @SP
 M=M+1
 // push local 1
-@1
+@LCL
 D=M
 @1
 D=D+A
@@ -332,7 +332,7 @@ M=D
 @SP
 M=M+1
 // push local 2
-@1
+@LCL
 D=M
 @2
 D=D+A
@@ -347,7 +347,7 @@ M=D
 @SP
 M=M+1
 // push local 3
-@1
+@LCL
 D=M
 @3
 D=D+A
@@ -362,7 +362,7 @@ M=D
 @SP
 M=M+1
 // push local 4
-@1
+@LCL
 D=M
 @4
 D=D+A
@@ -445,13 +445,18 @@ M=D
 @SP
 M=M+1
 // return
-@1
+@LCL
 D=M
 @5
 D=D-A
 @R15
 M=D
-@2
+@R15
+A=M
+D=M
+@R15
+M=D
+@ARG
 D=M
 @R14
 M=D
@@ -463,33 +468,37 @@ D=M
 @R14
 A=M
 M=D
-@SP
-M=M-1
-@SP
-A=M
+@LCL
 D=M
-@4
+@SP
 M=D
 @SP
 M=M-1
 @SP
 A=M
 D=M
-@3
+@THAT
 M=D
 @SP
 M=M-1
 @SP
 A=M
 D=M
-@2
+@THIS
 M=D
 @SP
 M=M-1
 @SP
 A=M
 D=M
-@1
+@ARG
+M=D
+@SP
+M=M-1
+@SP
+A=M
+D=M
+@LCL
 M=D
 @R14
 D=M
@@ -498,7 +507,6 @@ M=D
 @SP
 M=M+1
 @R15
-A=M
 A=M
 0;JMP
 // function Sys.add12 0
@@ -517,7 +525,7 @@ M=M-1
 @SP
 A=M
 D=M
-@3
+@THIS
 M=D
 // push constant 5002
 @5002
@@ -533,10 +541,10 @@ M=M-1
 @SP
 A=M
 D=M
-@4
+@THAT
 M=D
 // push argument 0
-@2
+@ARG
 D=M
 @0
 D=D+A
@@ -576,13 +584,18 @@ M=D
 @SP
 M=M+1
 // return
-@1
+@LCL
 D=M
 @5
 D=D-A
 @R15
 M=D
-@2
+@R15
+A=M
+D=M
+@R15
+M=D
+@ARG
 D=M
 @R14
 M=D
@@ -594,33 +607,37 @@ D=M
 @R14
 A=M
 M=D
-@SP
-M=M-1
-@SP
-A=M
+@LCL
 D=M
-@4
+@SP
 M=D
 @SP
 M=M-1
 @SP
 A=M
 D=M
-@3
+@THAT
 M=D
 @SP
 M=M-1
 @SP
 A=M
 D=M
-@2
+@THIS
 M=D
 @SP
 M=M-1
 @SP
 A=M
 D=M
-@1
+@ARG
+M=D
+@SP
+M=M-1
+@SP
+A=M
+D=M
+@LCL
 M=D
 @R14
 D=M
@@ -630,5 +647,7 @@ M=D
 M=M+1
 @R15
 A=M
-A=M
+0;JMP
+(END)
+@END
 0;JMP

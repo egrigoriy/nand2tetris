@@ -284,6 +284,7 @@ public class ASMWriterTest {
         String expected = String.join(System.lineSeparator(), expectedAsList);
         assertEquals(expected, ASMWriter.pushPointer("1"));
     }
+
     @Test
     public void testPopPointer0() {
         List<String> expectedAsList = List.of(
@@ -309,11 +310,8 @@ public class ASMWriterTest {
     @Test
     public void testPushStatic() {
         String index = "6";
-        String segment = "static";
-        String segmentRegister = "16";
-        int address = Integer.parseInt(segmentRegister) + Integer.parseInt(index);
         List<String> expectedAsList = List.of(
-                "@" + address,
+                "@" + index,
                 "D=M",
                 "@SP",
                 "A=M",
@@ -323,18 +321,17 @@ public class ASMWriterTest {
         String expected = String.join(System.lineSeparator(), expectedAsList);
         assertEquals(expected, ASMWriter.pushStatic(index));
     }
+
     @Test
     public void testPopStatic() {
-        String index = "6";
-        String segmentRegister = "16";
-        int address = Integer.parseInt(segmentRegister) + Integer.parseInt(index);
+        String address = "6";
         List<String> expectedAsList = List.of(
                 popToD(),
                 "@" + address,
                 "M=D"
         );
         String expected = String.join(System.lineSeparator(), expectedAsList);
-        assertEquals(expected, ASMWriter.popStatic(index));
+        assertEquals(expected, ASMWriter.popStatic(address));
     }
 
     @Test
@@ -347,6 +344,7 @@ public class ASMWriterTest {
         assertEquals(expected, ASMWriter.label(labelName));
 
     }
+
     @Test
     public void testGoto() {
         String labelName = "labelName";
@@ -358,6 +356,7 @@ public class ASMWriterTest {
         assertEquals(expected, ASMWriter.goTo(labelName));
 
     }
+
     @Test
     public void testIfGoto() {
         String labelName = "labelName";
@@ -373,17 +372,65 @@ public class ASMWriterTest {
         String expected = String.join(System.lineSeparator(), expectedAsList);
         assertEquals(expected, ASMWriter.ifGoto(labelName));
     }
+
     @Test
     public void testBootstrap() {
-        String labelName = "labelName";
+        String returnLabelName = "Sys.init$ret.1";
         List<String> expectedAsList = List.of(
+                "@256",
+                "D=A",
                 "@SP",
-                "M=M-1",
+                "M=D",
+                "@" + returnLabelName,
+                "D=A",
                 "@SP",
                 "A=M",
+                "M=D",
+                "@SP",
+                "M=M+1",
+                "@LCL",
                 "D=M",
-                "@" + labelName,
-                "D;JNE"
+                "@SP",
+                "A=M",
+                "M=D",
+                "@SP",
+                "M=M+1",
+                "@ARG",
+                "D=M",
+                "@SP",
+                "A=M",
+                "M=D",
+                "@SP",
+                "M=M+1",
+                "@THIS",
+                "D=M",
+                "@SP",
+                "A=M",
+                "M=D",
+                "@SP",
+                "M=M+1",
+                "@THAT",
+                "D=M",
+                "@SP",
+                "A=M",
+                "M=D",
+                "@SP",
+                "M=M+1",
+                "@SP",
+                "D=M",
+                "@5",
+                "D=D-A",
+                "@0",
+                "D=D-A",
+                "@ARG",
+                "M=D",
+                "@SP",
+                "D=M",
+                "@LCL",
+                "M=D",
+                "@Sys.init",
+                "0;JMP",
+                "(" + returnLabelName + ")"
         );
         String expected = String.join(System.lineSeparator(), expectedAsList);
         assertEquals(expected, ASMWriter.bootstrap());
@@ -438,6 +485,7 @@ public class ASMWriterTest {
         );
         return String.join(System.lineSeparator(), result);
     }
+
     private String incSP() {
         return "@SP" + System.lineSeparator() +
                 "M=M+1";

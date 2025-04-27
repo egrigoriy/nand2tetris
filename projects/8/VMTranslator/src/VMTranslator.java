@@ -50,8 +50,7 @@ public class VMTranslator {
                     System.exit(0);
                 }
             } catch (IOException e) {
-                printUsage();
-                System.exit(0);
+                throw new RuntimeException();
             }
         }
     }
@@ -61,7 +60,8 @@ public class VMTranslator {
      */
     private static void printUsage() {
         System.out.println("Usage: java VMTranslator source" + System.lineSeparator());
-        System.out.println("where source is either a path to a VM file (\"xxx.vm\") or a folder containing one or more VM files");
+        System.out.println("where source is either a relative path to a VM file (\"xxx.vm\")");
+        System.out.println("or a folder (\"path\"to\"folder\") containing one or more VM files");
     }
 
     /**
@@ -119,11 +119,11 @@ public class VMTranslator {
      * @return the ASM file path, i.e. path with file extension ".asm"
      */
     private static Path buildOutputFilePath(Path inputFilePath) {
+        String outputFileName = getFileNameWithoutExtension(inputFilePath) + ".asm";
         if (Files.isRegularFile(inputFilePath)) {
-            String outputFileName = getFileNameWithoutExtension(inputFilePath) + ".asm";
             return Path.of(inputFilePath.getParent().toString(), outputFileName);
         }
-        return Path.of(inputFilePath.toString(), inputFilePath + ".asm");
+        return Path.of(inputFilePath.toString(), outputFileName);
     }
 
     /**
@@ -152,7 +152,7 @@ public class VMTranslator {
             String content = String.join("\n", lines);
             Files.writeString(filePath, content);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException();
         }
     }
 }
